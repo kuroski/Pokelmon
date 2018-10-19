@@ -5,29 +5,23 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import RemoteData
-import Model exposing (Model, PokeColor(..), PokeType(..), Pokemon, Specie)
+import Model exposing (Model, PokeColor(..), PokeType(..), FullPokemon, Specie)
 import Update exposing (Msg(..))
-
-fullPokemon : Model -> RemoteData.WebData (Pokemon, Specie)
-fullPokemon model =
-    RemoteData.map2 (\pokemon specie -> (pokemon, specie)) model.pokemon model.specie
-
 
 view : Model -> Document Msg
 view model =
     let
         pokeName =
-            model.pokemon
+            model.fullPokemon
+                |> RemoteData.map .pokemon
                 |> RemoteData.map (.name >> (++) "Pokelmon | ")
                 |> RemoteData.withDefault "Pokelmon"
-
-        pokemon = fullPokemon model
     in
     { title = pokeName
     , body =
         [ div [ class "container max-w-sm mx-auto my-4" ]
             [ viewSearchInput model
-            , pokeView pokemon
+            , pokeView model.fullPokemon
             ]
         ]
     }
@@ -52,7 +46,7 @@ viewSearchInput model =
             [ class "shadow border-b border-t bg-purple hover:bg-purple-dark text-white leading-tight font-bold py-2 px-4 rounded-r-lg"
             , type_ "submit"
             ]
-            [ viewSearchButtonIcon <| RemoteData.isLoading <| fullPokemon model
+            [ viewSearchButtonIcon <| RemoteData.isLoading <| model.fullPokemon
             ]
         ]
 
@@ -77,20 +71,20 @@ viewLoading =
         ]
 
 
-pokeView : RemoteData.WebData (Pokemon, Specie) -> Html Msg
+pokeView : RemoteData.WebData FullPokemon -> Html Msg
 pokeView webDataFullPokemon =
     case webDataFullPokemon of
-        RemoteData.Success (pokemon, specie) ->
+        RemoteData.Success fullPokemon ->
             div []
-                [ img [ src pokemon.image ] []
-                , img [ src pokemon.imageBack ] []
-                , p [] [ text pokemon.name ]
-                , p [] [ text <| "#" ++ String.fromInt pokemon.order ]
-                , pokeTypeView (Just pokemon.pokeType1)
-                , pokeTypeView pokemon.pokeType2
-                , p [] [ text <| "Height (m) " ++ String.fromFloat pokemon.height ]
-                , p [] [ text <| "Weight (kg) " ++ String.fromFloat pokemon.weight ]
-                , specieView specie
+                [ img [ src fullPokemon.pokemon.image ] []
+                , img [ src fullPokemon.pokemon.imageBack ] []
+                , p [] [ text fullPokemon.pokemon.name ]
+                , p [] [ text <| "#" ++ String.fromInt fullPokemon.pokemon.order ]
+                , pokeTypeView (Just fullPokemon.pokemon.pokeType1)
+                , pokeTypeView fullPokemon.pokemon.pokeType2
+                , p [] [ text <| "Height (m) " ++ String.fromFloat fullPokemon.pokemon.height ]
+                , p [] [ text <| "Weight (kg) " ++ String.fromFloat fullPokemon.pokemon.weight ]
+                , specieView fullPokemon.specie
                 ]
 
         RemoteData.Loading ->

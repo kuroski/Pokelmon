@@ -1,6 +1,7 @@
-module Model exposing (Model, PokeColor(..), PokeType(..), Pokemon, Specie)
+module Model exposing (Model, PokeColor(..), PokeType(..), Pokemon, Specie, FullPokemon)
 
 import RemoteData exposing (WebData)
+
 
 type PokeType
     = Normal
@@ -60,9 +61,14 @@ type alias Specie =
     }
 
 
+type alias FullPokemon =
+    { pokemon : Pokemon
+    , specie : Specie
+    }
+
+
 type alias Model =
     { searchInput : String
-    , pokemon : WebData Pokemon
-    , specie : WebData Specie
+    , fullPokemon : WebData FullPokemon
     , evolution : WebData String
     }

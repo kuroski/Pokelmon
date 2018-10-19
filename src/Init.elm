@@ -7,8 +7,7 @@ import RemoteData exposing (RemoteData(..))
 initialModel : Model
 initialModel =
     { searchInput = ""
-    , pokemon = NotAsked
-    , specie = NotAsked
+    , fullPokemon = NotAsked
     , evolution = NotAsked
     }
 

@@ -155,19 +155,21 @@ typeDecoder =
     Decode.andThen stringMapper string
 
 
-getPokemon : String -> Http.Request Pokemon
+getPokemon : String -> Task Http.Error Pokemon
 getPokemon term =
     let
         url =
             "https://pokeapi.co/api/v2/pokemon/" ++ term ++ "/"
     in
     Http.get url pokeDecoder
+        |> Http.toTask
 
 
 
-getSpecie : Pokemon -> Http.Request Specie
+getSpecie : Pokemon -> Task Http.Error Specie
 getSpecie pokemon =
     Http.get pokemon.specieUrl specieDecoder
+        |> Http.toTask
 
 
 
