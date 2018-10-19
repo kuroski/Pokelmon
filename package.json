@@ -1,0 +1,23 @@
+{
+  "name": "pokelmon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "elm-live src/Main.elm --open --dir=public -- --debug --output=public/pokelmon.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/kuroski/pokelmon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/kuroski/pokelmon/issues"
+  },
+  "homepage": "https://gitlab.com/kuroski/pokelmon#readme",
+  "devDependencies": {
+    "elm": "^0.19.0-bugfix2",
+    "elm-live": "^3.0.6"
+  }
+}
