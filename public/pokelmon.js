@@ -6440,6 +6440,100 @@ var author$project$Api$colorDecoder = function () {
 	};
 	return A2(elm$json$Json$Decode$andThen, stringMapper, elm$json$Json$Decode$string);
 }();
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var elm$core$Tuple$second = function (_n0) {
+	var y = _n0.b;
+	return y;
+};
+var elm$json$Json$Decode$list = _Json_decodeList;
+var elm_community$list_extra$List$Extra$find = F2(
+	function (predicate, list) {
+		find:
+		while (true) {
+			if (!list.b) {
+				return elm$core$Maybe$Nothing;
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				if (predicate(first)) {
+					return elm$core$Maybe$Just(first);
+				} else {
+					var $temp$predicate = predicate,
+						$temp$list = rest;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue find;
+				}
+			}
+		}
+	});
+var author$project$Api$englishTextDecoder = function (tupleDecoder) {
+	return A2(
+		elm$json$Json$Decode$andThen,
+		function (genera) {
+			return A2(
+				elm$core$Maybe$withDefault,
+				elm$json$Json$Decode$fail('English translation not found'),
+				A2(
+					elm$core$Maybe$map,
+					A2(elm$core$Basics$composeR, elm$core$Tuple$first, elm$json$Json$Decode$succeed),
+					A2(
+						elm_community$list_extra$List$Extra$find,
+						A2(
+							elm$core$Basics$composeR,
+							elm$core$Tuple$second,
+							elm$core$Basics$eq('en')),
+						genera)));
+		},
+		elm$json$Json$Decode$list(tupleDecoder));
+};
+var elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var author$project$Api$flavorTextDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['language', 'name']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'flavor_text',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(elm$core$Tuple$pair)));
+var author$project$Api$genusDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['language', 'name']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'genus',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(elm$core$Tuple$pair)));
 var author$project$Model$Specie = F4(
 	function (color, genera, flavorText, evolutionChainUrl) {
 		return {color: color, evolutionChainUrl: evolutionChainUrl, flavorText: flavorText, genera: genera};
@@ -6450,15 +6544,13 @@ var author$project$Api$specieDecoder = A3(
 		['evolution_chain', 'url']),
 	elm$json$Json$Decode$string,
 	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['flavor_text_entries', '2', 'flavor_text']),
-		elm$json$Json$Decode$string,
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'flavor_text_entries',
+		author$project$Api$englishTextDecoder(author$project$Api$flavorTextDecoder),
 		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-			_List_fromArray(
-				['genera', '2', 'genus']),
-			elm$json$Json$Decode$string,
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'genera',
+			author$project$Api$englishTextDecoder(author$project$Api$genusDecoder),
 			A3(
 				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 				_List_fromArray(
@@ -7111,10 +7203,6 @@ var elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var elm$core$Tuple$second = function (_n0) {
-	var y = _n0.b;
-	return y;
-};
 var elm$html$Html$Attributes$classList = function (classes) {
 	return elm$html$Html$Attributes$class(
 		A2(
@@ -7247,11 +7335,6 @@ var author$project$View$viewSearchInput = function (model) {
 					]))
 			]));
 };
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
 var krisajenkins$remotedata$RemoteData$map = F2(
 	function (f, data) {
 		switch (data.$) {
@@ -8163,15 +8246,6 @@ var elm$core$Dict$isEmpty = function (dict) {
 		return false;
 	}
 };
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var elm$browser$Debugger$Expando$viewExtraTiny = function (value) {
 	if (value.$ === 'Record') {
 		var record = value.b;
@@ -9200,7 +9274,6 @@ var elm$browser$Debugger$Metadata$Alias = F2(
 	function (args, tipe) {
 		return {args: args, tipe: tipe};
 	});
-var elm$json$Json$Decode$list = _Json_decodeList;
 var elm$browser$Debugger$Metadata$decodeAlias = A3(
 	elm$json$Json$Decode$map2,
 	elm$browser$Debugger$Metadata$Alias,

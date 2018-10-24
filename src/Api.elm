@@ -1,8 +1,9 @@
-module Api exposing (getPokemon, getSpecie, getEvolutionChain)
+module Api exposing (getEvolutionChain, getPokemon, getSpecie)
 
 import Http
-import Json.Decode as Decode exposing (Decoder, int, nullable, string, at)
+import Json.Decode as Decode exposing (Decoder, at, int, list, nullable, string)
 import Json.Decode.Pipeline exposing (optionalAt, required, requiredAt)
+import List.Extra as ListExtra
 import Model exposing (PokeColor(..), PokeType(..), Pokemon, Specie)
 import Task exposing (Task)
 
@@ -16,9 +17,35 @@ specieDecoder : Decoder Specie
 specieDecoder =
     Decode.succeed Specie
         |> requiredAt [ "color", "name" ] colorDecoder
-        |> requiredAt [ "genera", "2", "genus" ] string
-        |> requiredAt [ "flavor_text_entries", "2", "flavor_text" ] string
+        |> required "genera" (englishTextDecoder genusDecoder)
+        |> required "flavor_text_entries" (englishTextDecoder flavorTextDecoder)
         |> requiredAt [ "evolution_chain", "url" ] string
+
+
+englishTextDecoder : Decoder (String, String) -> Decoder String
+englishTextDecoder tupleDecoder =
+    list tupleDecoder
+        |> Decode.andThen
+            (\entity ->
+                entity
+                    |> ListExtra.find (Tuple.second >> (==) "en")
+                    |> Maybe.map (Tuple.first >> Decode.succeed)
+                    |> Maybe.withDefault (Decode.fail "English translation not found")
+            )
+
+
+genusDecoder : Decoder ( String, String )
+genusDecoder =
+    Decode.succeed Tuple.pair
+        |> required "genus" string
+        |> requiredAt [ "language", "name" ] string
+
+
+flavorTextDecoder : Decoder ( String, String )
+flavorTextDecoder =
+    Decode.succeed Tuple.pair
+        |> required "flavor_text" string
+        |> requiredAt [ "language", "name" ] string
 
 
 colorDecoder : Decoder PokeColor
@@ -165,12 +192,10 @@ getPokemon term =
         |> Http.toTask
 
 
-
 getSpecie : Pokemon -> Task Http.Error Specie
 getSpecie pokemon =
     Http.get pokemon.specieUrl specieDecoder
         |> Http.toTask
-
 
 
 getEvolutionChain : Specie -> Http.Request String
