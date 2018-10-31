@@ -4,9 +4,11 @@ import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Model exposing (FullPokemon, Model, PokeColor(..), PokeType(..), Specie)
 import RemoteData
-import Model exposing (Model, PokeColor(..), PokeType(..), FullPokemon, Specie)
 import Update exposing (Msg(..))
+import View.Helpers exposing(pokeColor)
+
 
 view : Model -> Document Msg
 view model =
@@ -43,12 +45,25 @@ viewSearchInput model =
             ]
             []
         , button
-            [ class "shadow border-b border-t bg-purple hover:bg-purple-dark text-white leading-tight font-bold py-2 px-4 rounded-r-lg"
+            [ class ("shadow border-b border-t text-white leading-tight font-bold py-2 px-4 rounded-r-lg " ++ (submitColorClass model.fullPokemon))
             , type_ "submit"
             ]
             [ viewSearchButtonIcon <| RemoteData.isLoading <| model.fullPokemon
             ]
         ]
+
+
+submitColorClass : RemoteData.WebData FullPokemon -> String
+submitColorClass webDataFullPokemon =
+    case webDataFullPokemon of
+        RemoteData.Success fullPokemon ->
+            let
+                { background, hover, text } = pokeColor fullPokemon.specie.color
+            in
+            String.join " " [background, hover, text]
+
+        _ ->
+            "bg-purple hover:bg-purple-dark"
 
 
 viewSearchButtonIcon : Bool -> Html Msg
@@ -66,8 +81,8 @@ viewLoading : Html Msg
 viewLoading =
     div [ class "flex justify-center" ]
         [ i
-                [ class "fas fa-3x fa-spinner fa-pulse mb-4" ]
-                []
+            [ class "fas fa-3x fa-spinner fa-pulse mb-4" ]
+            []
         ]
 
 
@@ -90,7 +105,6 @@ pokeView webDataFullPokemon =
         RemoteData.Loading ->
             viewLoading
 
-
         _ ->
             div []
                 [ div
@@ -109,46 +123,7 @@ specieView specie =
     div []
         [ p [] [ text ("Genera: " ++ specie.genera) ]
         , p [] [ text ("Flavor text: " ++ specie.flavorText) ]
-        , p []
-            [ text "Color: "
-            , pokeColorView specie.color
-            ]
         ]
-
-
-pokeColorView : PokeColor -> Html msg
-pokeColorView pokeColor =
-    case pokeColor of
-        Black ->
-            div [] [ text "Black" ]
-
-        Blue ->
-            div [] [ text "Blue" ]
-
-        Brown ->
-            div [] [ text "Brown" ]
-
-        Gray ->
-            div [] [ text "Gray" ]
-
-        Green ->
-            div [] [ text "Green" ]
-
-        Pink ->
-            div [] [ text "Pink" ]
-
-        Purple ->
-            div [] [ text "Purple" ]
-
-        Red ->
-            div [] [ text "Red" ]
-
-        White ->
-            div [] [ text "White" ]
-
-        Yellow ->
-            div [] [ text "Yellow" ]
-
 
 pokeTypeView : Maybe PokeType -> Html msg
 pokeTypeView maybePokeType =

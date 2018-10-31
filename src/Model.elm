@@ -30,7 +30,7 @@ type PokeColor
     = Black
     | Blue
     | Brown
-    | Gray
+    | Grey
     | Green
     | Pink
     | Purple

@@ -6404,8 +6404,8 @@ var author$project$Api$getPokemon = function (term) {
 var author$project$Model$Black = {$: 'Black'};
 var author$project$Model$Blue = {$: 'Blue'};
 var author$project$Model$Brown = {$: 'Brown'};
-var author$project$Model$Gray = {$: 'Gray'};
 var author$project$Model$Green = {$: 'Green'};
+var author$project$Model$Grey = {$: 'Grey'};
 var author$project$Model$Pink = {$: 'Pink'};
 var author$project$Model$Purple = {$: 'Purple'};
 var author$project$Model$Red = {$: 'Red'};
@@ -6420,8 +6420,8 @@ var author$project$Api$colorDecoder = function () {
 				return elm$json$Json$Decode$succeed(author$project$Model$Blue);
 			case 'brown':
 				return elm$json$Json$Decode$succeed(author$project$Model$Brown);
-			case 'gray':
-				return elm$json$Json$Decode$succeed(author$project$Model$Gray);
+			case 'grey':
+				return elm$json$Json$Decode$succeed(author$project$Model$Grey);
 			case 'green':
 				return elm$json$Json$Decode$succeed(author$project$Model$Green);
 			case 'pink':
@@ -6493,7 +6493,7 @@ var elm_community$list_extra$List$Extra$find = F2(
 var author$project$Api$englishTextDecoder = function (tupleDecoder) {
 	return A2(
 		elm$json$Json$Decode$andThen,
-		function (genera) {
+		function (entity) {
 			return A2(
 				elm$core$Maybe$withDefault,
 				elm$json$Json$Decode$fail('English translation not found'),
@@ -6506,7 +6506,7 @@ var author$project$Api$englishTextDecoder = function (tupleDecoder) {
 							elm$core$Basics$composeR,
 							elm$core$Tuple$second,
 							elm$core$Basics$eq('en')),
-						genera)));
+						entity)));
 		},
 		elm$json$Json$Decode$list(tupleDecoder));
 };
@@ -6948,90 +6948,6 @@ var author$project$View$pokeTypeView = function (maybePokeType) {
 		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 	}
 };
-var author$project$View$pokeColorView = function (pokeColor) {
-	switch (pokeColor.$) {
-		case 'Black':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Black')
-					]));
-		case 'Blue':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Blue')
-					]));
-		case 'Brown':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Brown')
-					]));
-		case 'Gray':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Gray')
-					]));
-		case 'Green':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Green')
-					]));
-		case 'Pink':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Pink')
-					]));
-		case 'Purple':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Purple')
-					]));
-		case 'Red':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Red')
-					]));
-		case 'White':
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('White')
-					]));
-		default:
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Yellow')
-					]));
-	}
-};
 var elm$html$Html$p = _VirtualDom_node('p');
 var author$project$View$specieView = function (specie) {
 	return A2(
@@ -7052,14 +6968,6 @@ var author$project$View$specieView = function (specie) {
 				_List_fromArray(
 					[
 						elm$html$Html$text('Flavor text: ' + specie.flavorText)
-					])),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Color: '),
-						author$project$View$pokeColorView(specie.color)
 					]))
 			]));
 };
@@ -7190,6 +7098,50 @@ var author$project$View$pokeView = function (webDataFullPokemon) {
 var author$project$Update$SearchPokemon = {$: 'SearchPokemon'};
 var author$project$Update$SetSearchInput = function (a) {
 	return {$: 'SetSearchInput', a: a};
+};
+var author$project$View$Helpers$ColorAttributes = F3(
+	function (background, hover, text) {
+		return {background: background, hover: hover, text: text};
+	});
+var author$project$View$Helpers$pokeColor = function (color) {
+	switch (color.$) {
+		case 'Black':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-black', 'hover:bg-grey-darkest', 'text-white');
+		case 'Blue':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-blue', 'hover:bg-blue-dark', 'text-white');
+		case 'Brown':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-orange-darker', 'hover:bg-orange-dark', 'text-white');
+		case 'Grey':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-grey', 'hover:bg-grey-dark', 'text-black');
+		case 'Green':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-green', 'hover:bg-green-dark', 'text-white');
+		case 'Pink':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-pink', 'hover:bg-pink-dark', 'text-white');
+		case 'Purple':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-purple', 'hover:bg-purple-dark', 'text-white');
+		case 'Red':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-red', 'hover:bg-red-dark', 'text-white');
+		case 'White':
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-white', 'hover:bg-white-dark', 'text-black');
+		default:
+			return A3(author$project$View$Helpers$ColorAttributes, 'bg-yellow', 'hover:bg-yellow-dark', 'text-yellow-darkest');
+	}
+};
+var author$project$View$submitColorClass = function (webDataFullPokemon) {
+	if (webDataFullPokemon.$ === 'Success') {
+		var fullPokemon = webDataFullPokemon.a;
+		var _n1 = author$project$View$Helpers$pokeColor(fullPokemon.specie.color);
+		var background = _n1.background;
+		var hover = _n1.hover;
+		var text = _n1.text;
+		return A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[background, hover, text]));
+	} else {
+		return 'bg-purple hover:bg-purple-dark';
+	}
 };
 var elm$core$Basics$not = _Basics_not;
 var elm$core$List$filter = F2(
@@ -7325,7 +7277,8 @@ var author$project$View$viewSearchInput = function (model) {
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$class('shadow border-b border-t bg-purple hover:bg-purple-dark text-white leading-tight font-bold py-2 px-4 rounded-r-lg'),
+						elm$html$Html$Attributes$class(
+						'shadow border-b border-t text-white leading-tight font-bold py-2 px-4 rounded-r-lg ' + author$project$View$submitColorClass(model.fullPokemon)),
 						elm$html$Html$Attributes$type_('submit')
 					]),
 				_List_fromArray(
@@ -10963,4 +10916,4 @@ var elm$browser$Browser$document = _Browser_document;
 var author$project$Main$main = elm$browser$Browser$document(
 	{init: author$project$Init$init, subscriptions: author$project$Subs$subs, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"SetSearchInput":["String.String"],"SearchPokemon":[],"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Gray":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"SetSearchInput":["String.String"],"SearchPokemon":[],"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));

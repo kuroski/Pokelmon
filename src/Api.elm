@@ -63,8 +63,8 @@ colorDecoder =
                     "brown" ->
                         Decode.succeed Brown
 
-                    "gray" ->
-                        Decode.succeed Gray
+                    "grey" ->
+                        Decode.succeed Grey
 
                     "green" ->
                         Decode.succeed Green
