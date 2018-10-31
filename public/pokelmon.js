@@ -5031,8 +5031,22 @@ function _Browser_load(url)
 		}
 	}));
 }
+var author$project$Model$Black = {$: 'Black'};
+var author$project$Model$Normal = {$: 'Normal'};
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
+var author$project$Init$snorlax = {
+	pokemon: {height: 2.1, image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png', imageBack: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/143.png', imageFemale: elm$core$Maybe$Nothing, name: 'snorlax', order: 215, pokeType1: author$project$Model$Normal, pokeType2: elm$core$Maybe$Nothing, specieUrl: 'https://pokeapi.co/api/v2/pokemon-species/143/', weight: 460},
+	specie: {color: author$project$Model$Black, evolutionChainUrl: 'https://pokeapi.co/api/v2/evolution-chain/72/', flavorText: 'It eats nearly 900 pounds of food every day.\nIt starts nodding off while eating—and continues\nto eat even while it’s asleep.', genera: 'Sleeping Pokémon'}
+};
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var author$project$Init$initialModel = {evolution: krisajenkins$remotedata$RemoteData$NotAsked, fullPokemon: krisajenkins$remotedata$RemoteData$NotAsked, searchInput: ''};
+var krisajenkins$remotedata$RemoteData$Success = function (a) {
+	return {$: 'Success', a: a};
+};
+var author$project$Init$initialModel = {
+	evolution: krisajenkins$remotedata$RemoteData$NotAsked,
+	fullPokemon: krisajenkins$remotedata$RemoteData$Success(author$project$Init$snorlax),
+	searchInput: 'snorlax'
+};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
@@ -5296,7 +5310,6 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -5664,7 +5677,6 @@ var author$project$Model$Ghost = {$: 'Ghost'};
 var author$project$Model$Grass = {$: 'Grass'};
 var author$project$Model$Ground = {$: 'Ground'};
 var author$project$Model$Ice = {$: 'Ice'};
-var author$project$Model$Normal = {$: 'Normal'};
 var author$project$Model$Poison = {$: 'Poison'};
 var author$project$Model$Psychic = {$: 'Psychic'};
 var author$project$Model$Rock = {$: 'Rock'};
@@ -6401,7 +6413,6 @@ var author$project$Api$getPokemon = function (term) {
 	return elm$http$Http$toTask(
 		A2(elm$http$Http$get, url, author$project$Api$pokeDecoder));
 };
-var author$project$Model$Black = {$: 'Black'};
 var author$project$Model$Blue = {$: 'Blue'};
 var author$project$Model$Brown = {$: 'Brown'};
 var author$project$Model$Green = {$: 'Green'};
@@ -6688,9 +6699,6 @@ var krisajenkins$remotedata$RemoteData$Failure = function (a) {
 	return {$: 'Failure', a: a};
 };
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
-var krisajenkins$remotedata$RemoteData$Success = function (a) {
-	return {$: 'Success', a: a};
-};
 var author$project$Update$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6948,6 +6956,125 @@ var author$project$View$pokeTypeView = function (maybePokeType) {
 		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 	}
 };
+var elm$html$Html$img = _VirtualDom_node('img');
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$height = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'height',
+		elm$core$String$fromInt(n));
+};
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var elm$html$Html$Attributes$width = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'width',
+		elm$core$String$fromInt(n));
+};
+var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var elm$svg$Svg$path = elm$svg$Svg$trustedNode('path');
+var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
+var elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var author$project$View$pokemonBaseView = F2(
+	function (fullPokemon, colorAttributes) {
+		var iconClasses = A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[colorAttributes.color, 'fill-current']));
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mb-5 text-center')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('flex items-center justify-center')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$svg$Svg$svg,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$class(iconClasses),
+									elm$svg$Svg$Attributes$width('20'),
+									elm$svg$Svg$Attributes$height('20')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$svg$Svg$path,
+									_List_fromArray(
+										[
+											elm$svg$Svg$Attributes$d('M 10.003906 1.890625 C 5.945312 1.894531 2.582031 4.871094 1.976562 8.761719 L 6.105469 8.769531 C 6.632812 7.117188 8.179688 5.925781 10.003906 5.921875 C 11.824219 5.925781 13.367188 7.117188 13.898438 8.765625 L 18.023438 8.769531 C 17.421875 4.875 14.0625 1.894531 10.003906 1.890625 Z M 10.003906 7.359375 C 8.535156 7.359375 7.34375 8.550781 7.34375 10.019531 C 7.34375 11.484375 8.535156 12.675781 10.003906 12.675781 C 11.46875 12.675781 12.660156 11.484375 12.660156 10.019531 C 12.660156 8.550781 11.46875 7.359375 10.003906 7.359375 Z M 1.980469 11.269531 C 2.582031 15.160156 5.945312 18.140625 10.003906 18.144531 C 14.058594 18.140625 17.421875 15.164062 18.027344 11.277344 L 13.898438 11.269531 C 13.371094 12.917969 11.828125 14.113281 10.003906 14.113281 C 8.179688 14.109375 6.636719 12.917969 6.109375 11.273438 Z M 1.980469 11.269531')
+										]),
+									_List_Nil)
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('font-light text-xl')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(
+									elm$core$String$fromInt(fullPokemon.pokemon.order))
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('uppercase font-normal text-3xl')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(fullPokemon.pokemon.name)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('text-xs mb-4')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(fullPokemon.specie.genera)
+						])),
+					A2(
+					elm$html$Html$img,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$width(250),
+							elm$html$Html$Attributes$height(250),
+							elm$html$Html$Attributes$src('https://img.pokemondb.net/artwork/' + (fullPokemon.pokemon.name + '.jpg'))
+						]),
+					_List_Nil)
+				]));
+	});
 var elm$html$Html$p = _VirtualDom_node('p');
 var author$project$View$specieView = function (specie) {
 	return A2(
@@ -6960,27 +7087,76 @@ var author$project$View$specieView = function (specie) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						elm$html$Html$text('Genera: ' + specie.genera)
-					])),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
 						elm$html$Html$text('Flavor text: ' + specie.flavorText)
 					]))
 			]));
 };
-var elm$html$Html$i = _VirtualDom_node('i');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
+var elm$core$String$fromFloat = _String_fromNumber;
+var author$project$View$pokeView = F2(
+	function (fullPokemon, colorAttributes) {
+		var cardClasses = A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[colorAttributes.color, colorAttributes.border, 'border-solid', 'border-2', 'max-w-sm', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'p-6', 'flex', 'flex-col', 'items-center']));
 		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class(cardClasses)
+				]),
+			_List_fromArray(
+				[
+					A2(author$project$View$pokemonBaseView, fullPokemon, colorAttributes),
+					author$project$View$pokeTypeView(
+					elm$core$Maybe$Just(fullPokemon.pokemon.pokeType1)),
+					author$project$View$pokeTypeView(fullPokemon.pokemon.pokeType2),
+					A2(
+					elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text(
+							'Height (m) ' + elm$core$String$fromFloat(fullPokemon.pokemon.height))
+						])),
+					A2(
+					elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text(
+							'Weight (kg) ' + elm$core$String$fromFloat(fullPokemon.pokemon.weight))
+						])),
+					author$project$View$specieView(fullPokemon.specie)
+				]));
 	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$span = _VirtualDom_node('span');
+var author$project$View$viewFailure = A2(
+	elm$html$Html$div,
+	_List_Nil,
+	_List_fromArray(
+		[
+			A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('p-2 bg-indigo-darker items-center text-indigo-lightest leading-none rounded-full flex')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$span,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('font-semibold mr-2 flex-auto text-center')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('No pokemon found')
+						]))
+				]))
+		]));
+var elm$html$Html$i = _VirtualDom_node('i');
 var author$project$View$viewLoading = A2(
 	elm$html$Html$div,
 	_List_fromArray(
@@ -6997,151 +7173,10 @@ var author$project$View$viewLoading = A2(
 				]),
 			_List_Nil)
 		]));
-var elm$core$String$fromFloat = _String_fromNumber;
-var elm$html$Html$img = _VirtualDom_node('img');
-var elm$html$Html$span = _VirtualDom_node('span');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var author$project$View$pokeView = function (webDataFullPokemon) {
-	switch (webDataFullPokemon.$) {
-		case 'Success':
-			var fullPokemon = webDataFullPokemon.a;
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$img,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$src(fullPokemon.pokemon.image)
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$img,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$src(fullPokemon.pokemon.imageBack)
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text(fullPokemon.pokemon.name)
-							])),
-						A2(
-						elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text(
-								'#' + elm$core$String$fromInt(fullPokemon.pokemon.order))
-							])),
-						author$project$View$pokeTypeView(
-						elm$core$Maybe$Just(fullPokemon.pokemon.pokeType1)),
-						author$project$View$pokeTypeView(fullPokemon.pokemon.pokeType2),
-						A2(
-						elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text(
-								'Height (m) ' + elm$core$String$fromFloat(fullPokemon.pokemon.height))
-							])),
-						A2(
-						elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text(
-								'Weight (kg) ' + elm$core$String$fromFloat(fullPokemon.pokemon.weight))
-							])),
-						author$project$View$specieView(fullPokemon.specie)
-					]));
-		case 'Loading':
-			return author$project$View$viewLoading;
-		default:
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('p-2 bg-indigo-darker items-center text-indigo-lightest leading-none rounded-full flex')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$span,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$class('font-semibold mr-2 flex-auto text-center')
-									]),
-								_List_fromArray(
-									[
-										elm$html$Html$text('No pokemon found')
-									]))
-							]))
-					]));
-	}
-};
+var author$project$View$viewNotAsked = A2(elm$html$Html$div, _List_Nil, _List_Nil);
 var author$project$Update$SearchPokemon = {$: 'SearchPokemon'};
 var author$project$Update$SetSearchInput = function (a) {
 	return {$: 'SetSearchInput', a: a};
-};
-var author$project$View$Helpers$ColorAttributes = F3(
-	function (background, hover, text) {
-		return {background: background, hover: hover, text: text};
-	});
-var author$project$View$Helpers$pokeColor = function (color) {
-	switch (color.$) {
-		case 'Black':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-black', 'hover:bg-grey-darkest', 'text-white');
-		case 'Blue':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-blue', 'hover:bg-blue-dark', 'text-white');
-		case 'Brown':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-orange-darker', 'hover:bg-orange-dark', 'text-white');
-		case 'Grey':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-grey', 'hover:bg-grey-dark', 'text-black');
-		case 'Green':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-green', 'hover:bg-green-dark', 'text-white');
-		case 'Pink':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-pink', 'hover:bg-pink-dark', 'text-white');
-		case 'Purple':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-purple', 'hover:bg-purple-dark', 'text-white');
-		case 'Red':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-red', 'hover:bg-red-dark', 'text-white');
-		case 'White':
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-white', 'hover:bg-white-dark', 'text-black');
-		default:
-			return A3(author$project$View$Helpers$ColorAttributes, 'bg-yellow', 'hover:bg-yellow-dark', 'text-yellow-darkest');
-	}
-};
-var author$project$View$submitColorClass = function (webDataFullPokemon) {
-	if (webDataFullPokemon.$ === 'Success') {
-		var fullPokemon = webDataFullPokemon.a;
-		var _n1 = author$project$View$Helpers$pokeColor(fullPokemon.specie.color);
-		var background = _n1.background;
-		var hover = _n1.hover;
-		var text = _n1.text;
-		return A2(
-			elm$core$String$join,
-			' ',
-			_List_fromArray(
-				[background, hover, text]));
-	} else {
-		return 'bg-purple hover:bg-purple-dark';
-	}
 };
 var elm$core$Basics$not = _Basics_not;
 var elm$core$List$filter = F2(
@@ -7191,6 +7226,7 @@ var elm$html$Html$Attributes$boolProperty = F2(
 			elm$json$Json$Encode$bool(bool));
 	});
 var elm$html$Html$Attributes$autofocus = elm$html$Html$Attributes$boolProperty('autofocus');
+var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
@@ -7244,49 +7280,134 @@ var elm$html$Html$Events$onSubmit = function (msg) {
 			elm$html$Html$Events$alwaysPreventDefault,
 			elm$json$Json$Decode$succeed(msg)));
 };
-var krisajenkins$remotedata$RemoteData$isLoading = function (data) {
-	if (data.$ === 'Loading') {
-		return true;
-	} else {
-		return false;
+var author$project$View$viewSearchInput = F3(
+	function (isLoading, searchInput, _n0) {
+		var background = _n0.background;
+		var hover = _n0.hover;
+		var text = _n0.text;
+		var color = _n0.color;
+		var focusBorder = _n0.focusBorder;
+		var submitColorClass = A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[background, hover, text, 'shadow', 'border-b', 'border-t', 'text-white', 'leading-tight', 'font-bold', 'py-2', 'px-4', 'rounded-r-lg']));
+		var inputColorClass = A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[color, focusBorder, 'shadow', 'appearance-none', 'border', 'rounded-l', 'py-2', 'px-3', 'leading-tight', 'flex-1']));
+		return A2(
+			elm$html$Html$form,
+			_List_fromArray(
+				[
+					elm$html$Html$Events$onSubmit(author$project$Update$SearchPokemon),
+					elm$html$Html$Attributes$class('mb-8 flex items-center')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$input,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$type_('text'),
+							elm$html$Html$Attributes$placeholder('Search your pokemon'),
+							elm$html$Html$Attributes$value(searchInput),
+							elm$html$Html$Attributes$autofocus(true),
+							elm$html$Html$Events$onInput(author$project$Update$SetSearchInput),
+							elm$html$Html$Attributes$class(inputColorClass),
+							elm$html$Html$Attributes$disabled(isLoading)
+						]),
+					_List_Nil),
+					A2(
+					elm$html$Html$button,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class(submitColorClass),
+							elm$html$Html$Attributes$type_('submit')
+						]),
+					_List_fromArray(
+						[
+							author$project$View$viewSearchButtonIcon(isLoading)
+						]))
+				]));
+	});
+var author$project$View$Helpers$ColorAttributes = F6(
+	function (background, hover, text, color, border, focusBorder) {
+		return {background: background, border: border, color: color, focusBorder: focusBorder, hover: hover, text: text};
+	});
+var author$project$View$Helpers$pokeColorAttributes = function (color) {
+	switch (color.$) {
+		case 'Black':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-black', 'hover:bg-grey-darkest', 'text-white', 'text-black', 'border-black', 'focus:border-black');
+		case 'Blue':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-blue', 'hover:bg-blue-dark', 'text-white', 'text-blue', 'border-blue', 'focus:border-blue');
+		case 'Brown':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-orange-darker', 'hover:bg-orange-dark', 'text-white', 'text-orange-darker', 'border-orange-darker', 'focus:border-orange-darker');
+		case 'Grey':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-grey', 'hover:bg-grey-dark', 'text-black', 'text-grey', 'border-grey', 'focus:border-grey');
+		case 'Green':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-green', 'hover:bg-green-dark', 'text-white', 'text-green', 'border-green', 'focus:border-green');
+		case 'Pink':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-pink', 'hover:bg-pink-dark', 'text-white', 'text-pink', 'border-pink', 'focus:border-pink');
+		case 'Purple':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-purple', 'hover:bg-purple-dark', 'text-white', 'text-purple', 'border-purple', 'focus:border-purple');
+		case 'Red':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-red', 'hover:bg-red-dark', 'text-white', 'text-red', 'border-red', 'focus:border-red');
+		case 'White':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-white', 'hover:bg-white-dark', 'text-black', 'text-white-dark', 'border-white-dark', 'focus:border-white-dark');
+		default:
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-yellow', 'hover:bg-yellow-dark', 'text-yellow-darkest', 'text-yellow', 'border-yellow', 'focus:border-yellow');
 	}
 };
-var author$project$View$viewSearchInput = function (model) {
-	return A2(
-		elm$html$Html$form,
-		_List_fromArray(
-			[
-				elm$html$Html$Events$onSubmit(author$project$Update$SearchPokemon),
-				elm$html$Html$Attributes$class('mb-8 flex items-center')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$input,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$type_('text'),
-						elm$html$Html$Attributes$placeholder('Search your pokemon'),
-						elm$html$Html$Attributes$value(model.searchInput),
-						elm$html$Html$Attributes$autofocus(true),
-						elm$html$Html$Events$onInput(author$project$Update$SetSearchInput),
-						elm$html$Html$Attributes$class('shadow appearance-none border rounded-l py-2 px-3 text-purple-darker leading-tight focus:border-purple flex-1')
-					]),
-				_List_Nil),
-				A2(
-				elm$html$Html$button,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class(
-						'shadow border-b border-t text-white leading-tight font-bold py-2 px-4 rounded-r-lg ' + author$project$View$submitColorClass(model.fullPokemon)),
-						elm$html$Html$Attributes$type_('submit')
-					]),
-				_List_fromArray(
-					[
-						author$project$View$viewSearchButtonIcon(
-						krisajenkins$remotedata$RemoteData$isLoading(model.fullPokemon))
-					]))
-			]));
+var author$project$View$body = function (model) {
+	var _n0 = model.fullPokemon;
+	switch (_n0.$) {
+		case 'Success':
+			var fullPokemon = _n0.a;
+			return _List_fromArray(
+				[
+					A3(
+					author$project$View$viewSearchInput,
+					false,
+					model.searchInput,
+					author$project$View$Helpers$pokeColorAttributes(fullPokemon.specie.color)),
+					A2(
+					author$project$View$pokeView,
+					fullPokemon,
+					author$project$View$Helpers$pokeColorAttributes(fullPokemon.specie.color))
+				]);
+		case 'Loading':
+			return _List_fromArray(
+				[
+					A3(
+					author$project$View$viewSearchInput,
+					true,
+					model.searchInput,
+					author$project$View$Helpers$pokeColorAttributes(author$project$Model$Purple)),
+					author$project$View$viewLoading
+				]);
+		case 'Failure':
+			return _List_fromArray(
+				[
+					A3(
+					author$project$View$viewSearchInput,
+					false,
+					model.searchInput,
+					author$project$View$Helpers$pokeColorAttributes(author$project$Model$Purple)),
+					author$project$View$viewFailure
+				]);
+		default:
+			return _List_fromArray(
+				[
+					A3(
+					author$project$View$viewSearchInput,
+					false,
+					model.searchInput,
+					author$project$View$Helpers$pokeColorAttributes(author$project$Model$Purple)),
+					author$project$View$viewNotAsked
+				]);
+	}
 };
 var krisajenkins$remotedata$RemoteData$map = F2(
 	function (f, data) {
@@ -7340,11 +7461,7 @@ var author$project$View$view = function (model) {
 					[
 						elm$html$Html$Attributes$class('container max-w-sm mx-auto my-4')
 					]),
-				_List_fromArray(
-					[
-						author$project$View$viewSearchInput(model),
-						author$project$View$pokeView(model.fullPokemon)
-					]))
+				author$project$View$body(model))
 			]),
 		title: pokeName
 	};
