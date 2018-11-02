@@ -2,8 +2,8 @@ module Update exposing (Msg(..), update)
 
 import Api exposing (getEvolutionChain, getPokemon, getSpecie)
 import Http
+import Model exposing (FullPokemon, MiniPokemon, Model, Pokemon, Specie)
 import RemoteData exposing (RemoteData(..))
-import Model exposing (Model, FullPokemon, Pokemon, Specie)
 import Task exposing (Task)
 
 
@@ -11,6 +11,9 @@ type Msg
     = SetSearchInput String
     | SearchPokemon
     | PokemonLoaded (Result Http.Error FullPokemon)
+    | SearchPokemons
+    | PokemonsLoaded (Result Http.Error (List MiniPokemon))
+
 
 flippedAndThen : Task x a -> (a -> Task x b) -> Task x b
 flippedAndThen value function =
@@ -29,10 +32,11 @@ update msg model =
                     getPokemon (String.toLower model.searchInput)
             in
             ( { model | fullPokemon = Loading }
-            , Task.attempt PokemonLoaded
-                <| flippedAndThen request
-                <| \pokemon -> flippedAndThen (getSpecie pokemon)
-                <| \specie -> Task.succeed (FullPokemon pokemon specie)
+            , Task.attempt PokemonLoaded <|
+                flippedAndThen request <|
+                    \pokemon ->
+                        flippedAndThen (getSpecie pokemon) <|
+                            \specie -> Task.succeed (FullPokemon pokemon specie)
             )
 
         PokemonLoaded (Ok fullPokemon) ->
@@ -42,3 +46,12 @@ update msg model =
 
         PokemonLoaded (Err error) ->
             ( { model | fullPokemon = Failure error }, Cmd.none )
+
+        SearchPokemons ->
+            ( model, Cmd.none )
+
+        PokemonsLoaded ( Ok pokemons ) ->
+            ( model, Cmd.none )
+
+        PokemonsLoaded ( Err error ) ->
+            ( { model | pokemons = Failure error }, Cmd.none )

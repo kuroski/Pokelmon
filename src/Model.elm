@@ -1,4 +1,4 @@
-module Model exposing (Model, PokeColor(..), PokeType(..), Pokemon, Specie, FullPokemon)
+module Model exposing (FullPokemon, MiniPokemon, Model, PokeColor(..), PokeType(..), Pokemon, Specie)
 
 import RemoteData exposing (WebData)
 
@@ -67,8 +67,15 @@ type alias FullPokemon =
     }
 
 
+type alias MiniPokemon =
+    { name : String
+    , pokeUrl : String
+    }
+
+
 type alias Model =
     { searchInput : String
     , fullPokemon : WebData FullPokemon
+    , pokemons : WebData (List MiniPokemon)
     , evolution : WebData String
     }

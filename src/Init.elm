@@ -39,6 +39,7 @@ initialModel : Model
 initialModel =
     { searchInput = "snorlax"
     , fullPokemon = Success snorlax
+    , pokemons = NotAsked
     , evolution = NotAsked
     }
 

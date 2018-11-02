@@ -5045,6 +5045,7 @@ var krisajenkins$remotedata$RemoteData$Success = function (a) {
 var author$project$Init$initialModel = {
 	evolution: krisajenkins$remotedata$RemoteData$NotAsked,
 	fullPokemon: krisajenkins$remotedata$RemoteData$Success(author$project$Init$snorlax),
+	pokemons: krisajenkins$remotedata$RemoteData$NotAsked,
 	searchInput: 'snorlax'
 };
 var elm$core$Basics$False = {$: 'False'};
@@ -6731,7 +6732,7 @@ var author$project$Update$update = F2(
 											A2(author$project$Model$FullPokemon, pokemon, specie));
 									});
 							})));
-			default:
+			case 'PokemonLoaded':
 				if (msg.a.$ === 'Ok') {
 					var fullPokemon = msg.a.a;
 					return _Utils_Tuple2(
@@ -6748,6 +6749,22 @@ var author$project$Update$update = F2(
 							model,
 							{
 								fullPokemon: krisajenkins$remotedata$RemoteData$Failure(error)
+							}),
+						elm$core$Platform$Cmd$none);
+				}
+			case 'SearchPokemons':
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			default:
+				if (msg.a.$ === 'Ok') {
+					var pokemons = msg.a.a;
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				} else {
+					var error = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								pokemons: krisajenkins$remotedata$RemoteData$Failure(error)
 							}),
 						elm$core$Platform$Cmd$none);
 				}
@@ -11070,4 +11087,4 @@ var elm$browser$Browser$document = _Browser_document;
 var author$project$Main$main = elm$browser$Browser$document(
 	{init: author$project$Init$init, subscriptions: author$project$Subs$subs, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"SetSearchInput":["String.String"],"SearchPokemon":[],"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"SetSearchInput":["String.String"],"SearchPokemon":[],"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
