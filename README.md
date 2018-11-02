@@ -4,7 +4,7 @@ This is just a maglearn project to study elm =D
 Thaanks [Sunsi](https://github.com/lsunsi)
 
 [DEMO](https://kuroski.github.io/Pokelmon/public/index.html)
-![pokelmon](https://i.imgur.com/DHWxoS9.png)
+![pokelmon](https://i.imgur.com/JkFRkTP.png)
 
 ## Install
 
