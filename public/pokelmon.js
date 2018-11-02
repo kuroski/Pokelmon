@@ -6768,6 +6768,15 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$View$pokeTypeView = function (maybePokeType) {
 	if (maybePokeType.$ === 'Just') {
 		switch (maybePokeType.a.$) {
@@ -6775,173 +6784,173 @@ var author$project$View$pokeTypeView = function (maybePokeType) {
 				var _n1 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Normal')
-						]));
+							elm$html$Html$Attributes$class('type type--normal')
+						]),
+					_List_Nil);
 			case 'Fighting':
 				var _n2 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Fighting')
-						]));
+							elm$html$Html$Attributes$class('type type--fighting')
+						]),
+					_List_Nil);
 			case 'Flying':
 				var _n3 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Flying')
-						]));
+							elm$html$Html$Attributes$class('type type--flying')
+						]),
+					_List_Nil);
 			case 'Poison':
 				var _n4 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Poison')
-						]));
+							elm$html$Html$Attributes$class('type type--poison')
+						]),
+					_List_Nil);
 			case 'Ground':
 				var _n5 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Ground')
-						]));
+							elm$html$Html$Attributes$class('type type--ground')
+						]),
+					_List_Nil);
 			case 'Rock':
 				var _n6 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Rock')
-						]));
+							elm$html$Html$Attributes$class('type type--rock')
+						]),
+					_List_Nil);
 			case 'Bug':
 				var _n7 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Bug')
-						]));
+							elm$html$Html$Attributes$class('type type--bug')
+						]),
+					_List_Nil);
 			case 'Ghost':
 				var _n8 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Ghost')
-						]));
+							elm$html$Html$Attributes$class('type type--ghost')
+						]),
+					_List_Nil);
 			case 'Steel':
 				var _n9 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Steel')
-						]));
+							elm$html$Html$Attributes$class('type type--steel')
+						]),
+					_List_Nil);
 			case 'Fire':
 				var _n10 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Fire')
-						]));
+							elm$html$Html$Attributes$class('type type--fire')
+						]),
+					_List_Nil);
 			case 'Water':
 				var _n11 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Water')
-						]));
+							elm$html$Html$Attributes$class('type type--water')
+						]),
+					_List_Nil);
 			case 'Grass':
 				var _n12 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Grass')
-						]));
+							elm$html$Html$Attributes$class('type type--grass')
+						]),
+					_List_Nil);
 			case 'Electric':
 				var _n13 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Electric')
-						]));
+							elm$html$Html$Attributes$class('type type--electric')
+						]),
+					_List_Nil);
 			case 'Psychic':
 				var _n14 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Psychic')
-						]));
+							elm$html$Html$Attributes$class('type type--psychic')
+						]),
+					_List_Nil);
 			case 'Ice':
 				var _n15 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Ice')
-						]));
+							elm$html$Html$Attributes$class('type type--ice')
+						]),
+					_List_Nil);
 			case 'Dragon':
 				var _n16 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Dragon')
-						]));
+							elm$html$Html$Attributes$class('type type--dragon')
+						]),
+					_List_Nil);
 			case 'Dark':
 				var _n17 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Dark')
-						]));
+							elm$html$Html$Attributes$class('type type--dark')
+						]),
+					_List_Nil);
 			case 'Fairy':
 				var _n18 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Fairy')
-						]));
+							elm$html$Html$Attributes$class('type type--fairy')
+						]),
+					_List_Nil);
 			case 'Unknown':
 				var _n19 = maybePokeType.a;
 				return A2(
 					elm$html$Html$div,
-					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text('Unknown')
-						]));
+							elm$html$Html$Attributes$class('type type--unknown')
+						]),
+					_List_Nil);
 			default:
 				var _n20 = maybePokeType.a;
 				return A2(
@@ -6957,32 +6966,11 @@ var author$project$View$pokeTypeView = function (maybePokeType) {
 	}
 };
 var elm$html$Html$img = _VirtualDom_node('img');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
-var elm$html$Html$Attributes$height = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'height',
-		elm$core$String$fromInt(n));
-};
 var elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		elm$html$Html$Attributes$stringProperty,
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var elm$html$Html$Attributes$width = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'width',
-		elm$core$String$fromInt(n));
 };
 var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var elm$svg$Svg$path = elm$svg$Svg$trustedNode('path');
@@ -7000,17 +6988,14 @@ var author$project$View$pokemonBaseView = F2(
 				[colorAttributes.color, 'fill-current']));
 		return A2(
 			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mb-5 text-center')
-				]),
+			_List_Nil,
 			_List_fromArray(
 				[
 					A2(
 					elm$html$Html$div,
 					_List_fromArray(
 						[
-							elm$html$Html$Attributes$class('flex items-center justify-center')
+							elm$html$Html$Attributes$class('flex items-center')
 						]),
 					_List_fromArray(
 						[
@@ -7058,47 +7043,43 @@ var author$project$View$pokemonBaseView = F2(
 					elm$html$Html$div,
 					_List_fromArray(
 						[
-							elm$html$Html$Attributes$class('text-xs mb-4')
+							elm$html$Html$Attributes$class('text-xs mb-2')
 						]),
 					_List_fromArray(
 						[
 							elm$html$Html$text(fullPokemon.specie.genera)
 						])),
 					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('flex items-center')
+						]),
+					_List_fromArray(
+						[
+							author$project$View$pokeTypeView(
+							elm$core$Maybe$Just(fullPokemon.pokemon.pokeType1)),
+							author$project$View$pokeTypeView(fullPokemon.pokemon.pokeType2)
+						])),
+					A2(
 					elm$html$Html$img,
 					_List_fromArray(
 						[
-							elm$html$Html$Attributes$width(250),
-							elm$html$Html$Attributes$height(250),
+							elm$html$Html$Attributes$class('mt-2'),
 							elm$html$Html$Attributes$src('https://img.pokemondb.net/artwork/' + (fullPokemon.pokemon.name + '.jpg'))
 						]),
 					_List_Nil)
 				]));
 	});
-var elm$html$Html$p = _VirtualDom_node('p');
-var author$project$View$specieView = function (specie) {
-	return A2(
-		elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Flavor text: ' + specie.flavorText)
-					]))
-			]));
-};
 var elm$core$String$fromFloat = _String_fromNumber;
+var elm$html$Html$i = _VirtualDom_node('i');
 var author$project$View$pokeView = F2(
 	function (fullPokemon, colorAttributes) {
 		var cardClasses = A2(
 			elm$core$String$join,
 			' ',
 			_List_fromArray(
-				[colorAttributes.color, colorAttributes.border, 'border-solid', 'border-2', 'max-w-sm', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'p-6', 'flex', 'flex-col', 'items-center']));
+				[colorAttributes.color, colorAttributes.border, 'border-solid', 'border-2', 'max-w-sm', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'p-6', 'flex', 'justify-between']));
 		return A2(
 			elm$html$Html$div,
 			_List_fromArray(
@@ -7108,26 +7089,82 @@ var author$project$View$pokeView = F2(
 			_List_fromArray(
 				[
 					A2(author$project$View$pokemonBaseView, fullPokemon, colorAttributes),
-					author$project$View$pokeTypeView(
-					elm$core$Maybe$Just(fullPokemon.pokemon.pokeType1)),
-					author$project$View$pokeTypeView(fullPokemon.pokemon.pokeType2),
 					A2(
-					elm$html$Html$p,
-					_List_Nil,
+					elm$html$Html$div,
 					_List_fromArray(
 						[
-							elm$html$Html$text(
-							'Height (m) ' + elm$core$String$fromFloat(fullPokemon.pokemon.height))
-						])),
-					A2(
-					elm$html$Html$p,
-					_List_Nil,
+							elm$html$Html$Attributes$class('ml-6')
+						]),
 					_List_fromArray(
 						[
-							elm$html$Html$text(
-							'Weight (kg) ' + elm$core$String$fromFloat(fullPokemon.pokemon.weight))
-						])),
-					author$project$View$specieView(fullPokemon.specie)
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('flex font-thin text-sm mb-2')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$div,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('flex items-center mr-4')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											elm$html$Html$i,
+											_List_fromArray(
+												[
+													elm$html$Html$Attributes$class('fas fa-text-height mr-2')
+												]),
+											_List_Nil),
+											A2(
+											elm$html$Html$div,
+											_List_Nil,
+											_List_fromArray(
+												[
+													elm$html$Html$text(
+													elm$core$String$fromFloat(fullPokemon.pokemon.height) + ' (m)')
+												]))
+										])),
+									A2(
+									elm$html$Html$div,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('flex items-center')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											elm$html$Html$i,
+											_List_fromArray(
+												[
+													elm$html$Html$Attributes$class('fas fa-weight mr-2')
+												]),
+											_List_Nil),
+											A2(
+											elm$html$Html$div,
+											_List_Nil,
+											_List_fromArray(
+												[
+													elm$html$Html$text(
+													elm$core$String$fromFloat(fullPokemon.pokemon.weight) + ' (kg)')
+												]))
+										]))
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('font-light')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(fullPokemon.specie.flavorText)
+								]))
+						]))
 				]));
 	});
 var elm$html$Html$span = _VirtualDom_node('span');
@@ -7156,7 +7193,6 @@ var author$project$View$viewFailure = A2(
 						]))
 				]))
 		]));
-var elm$html$Html$i = _VirtualDom_node('i');
 var author$project$View$viewLoading = A2(
 	elm$html$Html$div,
 	_List_fromArray(
@@ -7620,6 +7656,7 @@ var elm$browser$Debugger$Overlay$viewProblemType = function (_n0) {
 			]));
 };
 var elm$html$Html$a = _VirtualDom_node('a');
+var elm$html$Html$p = _VirtualDom_node('p');
 var elm$html$Html$ul = _VirtualDom_node('ul');
 var elm$html$Html$Attributes$href = function (url) {
 	return A2(

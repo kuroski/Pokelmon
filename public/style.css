@@ -10,3 +10,104 @@ body {
   width: 20px;
   height: 20px;
 }
+
+.type {
+  width: 35px;
+  height: 50px;
+  background-color: transparent;
+  background-image: url('types.png');
+  background-size: 274px;
+}
+
+.type + .type {
+  margin-left: 4px;
+}
+
+.type--normal {
+  background-position: -771px -264px;
+}
+
+.type--fighting {
+  background-position: -564px -321px;
+}
+
+.type--flying {
+  background-position: -685px -321px;
+}
+
+.type--poison {
+  background-position: -604px -321px;
+}
+
+.type--ground {
+  background-position: -685px -210px;
+}
+
+.type--rock {
+  background-position: -728px -210px;
+}
+
+.type--bug {
+  background-position: -645px -321px;
+}
+
+.type--ghost {
+  background-position: -685px -265px;
+}
+
+.type--steel {
+  background-position: -771px -209px;
+}
+
+.type--fire {
+  background-position: -56px -209px;
+}
+
+.type--water {
+  background-position: -16px -209px;
+}
+
+.type--grass {
+  background-position: -97px -209px;
+}
+
+.type--electric {
+  background-position: -56px -263px;
+}
+
+.type--psychic {
+  background-position: -180px -263px;
+}
+
+.type--ice {
+  background-position: -16px -263px;
+}
+
+.type--dragon {
+  background-position: -97px -263px;
+}
+
+.type--dark {
+  background-position: -180px -320px;
+}
+
+.type--unknown {
+  background-image: none;
+}
+
+.type--unknown::before {
+  content: "?";
+  position: absolute;
+  top: 3px;
+  left: 1px;
+  background-color: transparent;
+  z-index: 1;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: solid 5px black;
+  background-image: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
