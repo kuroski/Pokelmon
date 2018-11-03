@@ -1819,6 +1819,188 @@ function _Scheduler_step(proc)
 
 
 
+// SEND REQUEST
+
+var _Http_toTask = F2(function(request, maybeProgress)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var xhr = new XMLHttpRequest();
+
+		_Http_configureProgress(xhr, maybeProgress);
+
+		xhr.addEventListener('error', function() {
+			callback(_Scheduler_fail(elm$http$Http$NetworkError));
+		});
+		xhr.addEventListener('timeout', function() {
+			callback(_Scheduler_fail(elm$http$Http$Timeout));
+		});
+		xhr.addEventListener('load', function() {
+			callback(_Http_handleResponse(xhr, request.expect.a));
+		});
+
+		try
+		{
+			xhr.open(request.method, request.url, true);
+		}
+		catch (e)
+		{
+			return callback(_Scheduler_fail(elm$http$Http$BadUrl(request.url)));
+		}
+
+		_Http_configureRequest(xhr, request);
+
+		var body = request.body;
+		xhr.send(elm$http$Http$Internal$isStringBody(body)
+			? (xhr.setRequestHeader('Content-Type', body.a), body.b)
+			: body.a
+		);
+
+		return function() { xhr.abort(); };
+	});
+});
+
+function _Http_configureProgress(xhr, maybeProgress)
+{
+	if (!elm$core$Maybe$isJust(maybeProgress))
+	{
+		return;
+	}
+
+	xhr.addEventListener('progress', function(event) {
+		if (!event.lengthComputable)
+		{
+			return;
+		}
+		_Scheduler_rawSpawn(maybeProgress.a({
+			bytes: event.loaded,
+			bytesExpected: event.total
+		}));
+	});
+}
+
+function _Http_configureRequest(xhr, request)
+{
+	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
+	{
+		xhr.setRequestHeader(headers.a.a, headers.a.b);
+	}
+
+	xhr.responseType = request.expect.b;
+	xhr.withCredentials = request.withCredentials;
+
+	elm$core$Maybe$isJust(request.timeout) && (xhr.timeout = request.timeout.a);
+}
+
+
+// RESPONSES
+
+function _Http_handleResponse(xhr, responseToResult)
+{
+	var response = _Http_toResponse(xhr);
+
+	if (xhr.status < 200 || 300 <= xhr.status)
+	{
+		response.body = xhr.responseText;
+		return _Scheduler_fail(elm$http$Http$BadStatus(response));
+	}
+
+	var result = responseToResult(response);
+
+	if (elm$core$Result$isOk(result))
+	{
+		return _Scheduler_succeed(result.a);
+	}
+	else
+	{
+		response.body = xhr.responseText;
+		return _Scheduler_fail(A2(elm$http$Http$BadPayload, result.a, response));
+	}
+}
+
+function _Http_toResponse(xhr)
+{
+	return {
+		url: xhr.responseURL,
+		status: { code: xhr.status, message: xhr.statusText },
+		headers: _Http_parseHeaders(xhr.getAllResponseHeaders()),
+		body: xhr.response
+	};
+}
+
+function _Http_parseHeaders(rawHeaders)
+{
+	var headers = elm$core$Dict$empty;
+
+	if (!rawHeaders)
+	{
+		return headers;
+	}
+
+	var headerPairs = rawHeaders.split('\u000d\u000a');
+	for (var i = headerPairs.length; i--; )
+	{
+		var headerPair = headerPairs[i];
+		var index = headerPair.indexOf('\u003a\u0020');
+		if (index > 0)
+		{
+			var key = headerPair.substring(0, index);
+			var value = headerPair.substring(index + 2);
+
+			headers = A3(elm$core$Dict$update, key, function(oldValue) {
+				return elm$core$Maybe$Just(elm$core$Maybe$isJust(oldValue)
+					? value + ', ' + oldValue.a
+					: value
+				);
+			}, headers);
+		}
+	}
+
+	return headers;
+}
+
+
+// EXPECTORS
+
+function _Http_expectStringResponse(responseToResult)
+{
+	return {
+		$: 0,
+		b: 'text',
+		a: responseToResult
+	};
+}
+
+var _Http_mapExpect = F2(function(func, expect)
+{
+	return {
+		$: 0,
+		b: expect.b,
+		a: function(response) {
+			var convertedResponse = expect.a(response);
+			return A2(elm$core$Result$map, func, convertedResponse);
+		}
+	};
+});
+
+
+// BODY
+
+function _Http_multipart(parts)
+{
+
+
+	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
+	{
+		var part = parts.a;
+		formData.append(part.a, part.b);
+	}
+
+	return elm$http$Http$Internal$FormDataBody(formData);
+}
+
+
+
 function _Process_sleep(time)
 {
 	return _Scheduler_binding(function(callback) {
@@ -2294,188 +2476,6 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 				: _Platform_mergeExportsDebug(moduleName + '.' + name, obj[name], exports[name])
 			: (obj[name] = exports[name]);
 	}
-}
-
-
-
-// SEND REQUEST
-
-var _Http_toTask = F2(function(request, maybeProgress)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var xhr = new XMLHttpRequest();
-
-		_Http_configureProgress(xhr, maybeProgress);
-
-		xhr.addEventListener('error', function() {
-			callback(_Scheduler_fail(elm$http$Http$NetworkError));
-		});
-		xhr.addEventListener('timeout', function() {
-			callback(_Scheduler_fail(elm$http$Http$Timeout));
-		});
-		xhr.addEventListener('load', function() {
-			callback(_Http_handleResponse(xhr, request.expect.a));
-		});
-
-		try
-		{
-			xhr.open(request.method, request.url, true);
-		}
-		catch (e)
-		{
-			return callback(_Scheduler_fail(elm$http$Http$BadUrl(request.url)));
-		}
-
-		_Http_configureRequest(xhr, request);
-
-		var body = request.body;
-		xhr.send(elm$http$Http$Internal$isStringBody(body)
-			? (xhr.setRequestHeader('Content-Type', body.a), body.b)
-			: body.a
-		);
-
-		return function() { xhr.abort(); };
-	});
-});
-
-function _Http_configureProgress(xhr, maybeProgress)
-{
-	if (!elm$core$Maybe$isJust(maybeProgress))
-	{
-		return;
-	}
-
-	xhr.addEventListener('progress', function(event) {
-		if (!event.lengthComputable)
-		{
-			return;
-		}
-		_Scheduler_rawSpawn(maybeProgress.a({
-			bytes: event.loaded,
-			bytesExpected: event.total
-		}));
-	});
-}
-
-function _Http_configureRequest(xhr, request)
-{
-	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
-	{
-		xhr.setRequestHeader(headers.a.a, headers.a.b);
-	}
-
-	xhr.responseType = request.expect.b;
-	xhr.withCredentials = request.withCredentials;
-
-	elm$core$Maybe$isJust(request.timeout) && (xhr.timeout = request.timeout.a);
-}
-
-
-// RESPONSES
-
-function _Http_handleResponse(xhr, responseToResult)
-{
-	var response = _Http_toResponse(xhr);
-
-	if (xhr.status < 200 || 300 <= xhr.status)
-	{
-		response.body = xhr.responseText;
-		return _Scheduler_fail(elm$http$Http$BadStatus(response));
-	}
-
-	var result = responseToResult(response);
-
-	if (elm$core$Result$isOk(result))
-	{
-		return _Scheduler_succeed(result.a);
-	}
-	else
-	{
-		response.body = xhr.responseText;
-		return _Scheduler_fail(A2(elm$http$Http$BadPayload, result.a, response));
-	}
-}
-
-function _Http_toResponse(xhr)
-{
-	return {
-		url: xhr.responseURL,
-		status: { code: xhr.status, message: xhr.statusText },
-		headers: _Http_parseHeaders(xhr.getAllResponseHeaders()),
-		body: xhr.response
-	};
-}
-
-function _Http_parseHeaders(rawHeaders)
-{
-	var headers = elm$core$Dict$empty;
-
-	if (!rawHeaders)
-	{
-		return headers;
-	}
-
-	var headerPairs = rawHeaders.split('\u000d\u000a');
-	for (var i = headerPairs.length; i--; )
-	{
-		var headerPair = headerPairs[i];
-		var index = headerPair.indexOf('\u003a\u0020');
-		if (index > 0)
-		{
-			var key = headerPair.substring(0, index);
-			var value = headerPair.substring(index + 2);
-
-			headers = A3(elm$core$Dict$update, key, function(oldValue) {
-				return elm$core$Maybe$Just(elm$core$Maybe$isJust(oldValue)
-					? value + ', ' + oldValue.a
-					: value
-				);
-			}, headers);
-		}
-	}
-
-	return headers;
-}
-
-
-// EXPECTORS
-
-function _Http_expectStringResponse(responseToResult)
-{
-	return {
-		$: 0,
-		b: 'text',
-		a: responseToResult
-	};
-}
-
-var _Http_mapExpect = F2(function(func, expect)
-{
-	return {
-		$: 0,
-		b: expect.b,
-		a: function(response) {
-			var convertedResponse = expect.a(response);
-			return A2(elm$core$Result$map, func, convertedResponse);
-		}
-	};
-});
-
-
-// BODY
-
-function _Http_multipart(parts)
-{
-
-
-	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
-	{
-		var part = parts.a;
-		formData.append(part.a, part.b);
-	}
-
-	return elm$http$Http$Internal$FormDataBody(formData);
 }
 
 
@@ -5031,32 +5031,15 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Model$Black = {$: 'Black'};
-var author$project$Model$Normal = {$: 'Normal'};
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
-var author$project$Init$snorlax = {
-	pokemon: {height: 2.1, image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png', imageBack: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/143.png', imageFemale: elm$core$Maybe$Nothing, name: 'snorlax', order: 215, pokeType1: author$project$Model$Normal, pokeType2: elm$core$Maybe$Nothing, specieUrl: 'https://pokeapi.co/api/v2/pokemon-species/143/', weight: 460},
-	specie: {color: author$project$Model$Black, evolutionChainUrl: 'https://pokeapi.co/api/v2/evolution-chain/72/', flavorText: 'It eats nearly 900 pounds of food every day.\nIt starts nodding off while eating—and continues\nto eat even while it’s asleep.', genera: 'Sleeping Pokémon'}
-};
-var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var krisajenkins$remotedata$RemoteData$Success = function (a) {
-	return {$: 'Success', a: a};
-};
-var author$project$Init$initialModel = {
-	evolution: krisajenkins$remotedata$RemoteData$NotAsked,
-	fullPokemon: krisajenkins$remotedata$RemoteData$Success(author$project$Init$snorlax),
-	pokemons: krisajenkins$remotedata$RemoteData$NotAsked,
-	searchInput: 'snorlax'
-};
-var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$True = {$: 'True'};
-var elm$core$Result$isOk = function (result) {
-	if (result.$ === 'Ok') {
-		return true;
-	} else {
-		return false;
-	}
-};
+var elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
+var elm$core$Array$branchFactor = 32;
+var elm$core$Array$Array_elm_builtin = F4(
+	function (a, b, c, d) {
+		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
+	});
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$GT = {$: 'GT'};
 var elm$core$Basics$LT = {$: 'LT'};
@@ -5137,11 +5120,6 @@ var elm$core$Array$foldr = F3(
 var elm$core$Array$toList = function (array) {
 	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
 };
-var elm$core$Array$branchFactor = 32;
-var elm$core$Array$Array_elm_builtin = F4(
-	function (a, b, c, d) {
-		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
-	});
 var elm$core$Basics$ceiling = _Basics_ceiling;
 var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$logBase = F2(
@@ -5204,10 +5182,6 @@ var elm$core$Array$compressNodes = F2(
 			}
 		}
 	});
-var elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
 var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Tuple$first = function (_n0) {
 	var x = _n0.a;
@@ -5266,6 +5240,7 @@ var elm$core$Array$builderToArray = F2(
 				builder.tail);
 		}
 	});
+var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$idiv = _Basics_idiv;
 var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
@@ -5311,11 +5286,20 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
 var elm$core$Result$Ok = function (a) {
 	return {$: 'Ok', a: a};
+};
+var elm$core$Basics$True = {$: 'True'};
+var elm$core$Result$isOk = function (result) {
+	if (result.$ === 'Ok') {
+		return true;
+	} else {
+		return false;
+	}
 };
 var elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
@@ -5522,57 +5506,31 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 			}
 		}
 	});
-var elm$core$Platform$Cmd$batch = _Platform_batch;
-var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var author$project$Init$init = function (_n0) {
-	return _Utils_Tuple2(author$project$Init$initialModel, elm$core$Platform$Cmd$none);
-};
-var elm$core$Platform$Sub$batch = _Platform_batch;
-var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
-var author$project$Subs$subs = function (_n0) {
-	return elm$core$Platform$Sub$none;
-};
 var elm$json$Json$Decode$map2 = _Json_map2;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
-var elm$json$Json$Decode$andThen = _Json_andThen;
-var elm$json$Json$Decode$decodeValue = _Json_run;
-var elm$json$Json$Decode$fail = _Json_fail;
-var elm$json$Json$Decode$null = _Json_decodeNull;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var elm$json$Json$Decode$value = _Json_decodeValue;
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
-	function (pathDecoder, valDecoder, fallback) {
-		var nullOr = function (decoder) {
-			return elm$json$Json$Decode$oneOf(
-				_List_fromArray(
-					[
-						decoder,
-						elm$json$Json$Decode$null(fallback)
-					]));
-		};
-		var handleResult = function (input) {
-			var _n0 = A2(elm$json$Json$Decode$decodeValue, pathDecoder, input);
-			if (_n0.$ === 'Ok') {
-				var rawValue = _n0.a;
-				var _n1 = A2(
-					elm$json$Json$Decode$decodeValue,
-					nullOr(valDecoder),
-					rawValue);
-				if (_n1.$ === 'Ok') {
-					var finalResult = _n1.a;
-					return elm$json$Json$Decode$succeed(finalResult);
-				} else {
-					var finalErr = _n1.a;
-					return elm$json$Json$Decode$fail(
-						elm$json$Json$Decode$errorToString(finalErr));
-				}
-			} else {
-				return elm$json$Json$Decode$succeed(fallback);
-			}
-		};
-		return A2(elm$json$Json$Decode$andThen, handleResult, elm$json$Json$Decode$value);
+var elm$json$Json$Decode$field = _Json_decodeField;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$field, key, valDecoder),
+			decoder);
 	});
+var author$project$Model$MiniPokemon = F2(
+	function (name, pokeUrl) {
+		return {name: name, pokeUrl: pokeUrl};
+	});
+var elm$json$Json$Decode$string = _Json_decodeString;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var author$project$Api$pokeMiniDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Model$MiniPokemon)));
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -5628,190 +5586,16 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
-var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
 	});
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt = F4(
-	function (path, valDecoder, fallback, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
-				A2(elm$json$Json$Decode$at, path, elm$json$Json$Decode$value),
-				valDecoder,
-				fallback),
-			decoder);
-	});
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
-	function (key, valDecoder, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A2(elm$json$Json$Decode$field, key, valDecoder),
-			decoder);
-	});
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
-	function (path, valDecoder, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A2(elm$json$Json$Decode$at, path, valDecoder),
-			decoder);
-	});
-var elm$json$Json$Decode$int = _Json_decodeInt;
-var elm$json$Json$Decode$map = _Json_map1;
-var author$project$Api$sizeDecoder = A2(
-	elm$json$Json$Decode$map,
-	function (i) {
-		return i / 10;
-	},
-	elm$json$Json$Decode$int);
-var author$project$Model$Bug = {$: 'Bug'};
-var author$project$Model$Dark = {$: 'Dark'};
-var author$project$Model$Dragon = {$: 'Dragon'};
-var author$project$Model$Electric = {$: 'Electric'};
-var author$project$Model$Fairy = {$: 'Fairy'};
-var author$project$Model$Fighting = {$: 'Fighting'};
-var author$project$Model$Fire = {$: 'Fire'};
-var author$project$Model$Flying = {$: 'Flying'};
-var author$project$Model$Ghost = {$: 'Ghost'};
-var author$project$Model$Grass = {$: 'Grass'};
-var author$project$Model$Ground = {$: 'Ground'};
-var author$project$Model$Ice = {$: 'Ice'};
-var author$project$Model$Poison = {$: 'Poison'};
-var author$project$Model$Psychic = {$: 'Psychic'};
-var author$project$Model$Rock = {$: 'Rock'};
-var author$project$Model$Shadow = {$: 'Shadow'};
-var author$project$Model$Steel = {$: 'Steel'};
-var author$project$Model$Unknown = {$: 'Unknown'};
-var author$project$Model$Water = {$: 'Water'};
-var elm$json$Json$Decode$string = _Json_decodeString;
-var author$project$Api$typeDecoder = function () {
-	var stringMapper = function (s) {
-		switch (s) {
-			case 'normal':
-				return elm$json$Json$Decode$succeed(author$project$Model$Normal);
-			case 'fighting':
-				return elm$json$Json$Decode$succeed(author$project$Model$Fighting);
-			case 'flying':
-				return elm$json$Json$Decode$succeed(author$project$Model$Flying);
-			case 'poison':
-				return elm$json$Json$Decode$succeed(author$project$Model$Poison);
-			case 'ground':
-				return elm$json$Json$Decode$succeed(author$project$Model$Ground);
-			case 'rock':
-				return elm$json$Json$Decode$succeed(author$project$Model$Rock);
-			case 'bug':
-				return elm$json$Json$Decode$succeed(author$project$Model$Bug);
-			case 'ghost':
-				return elm$json$Json$Decode$succeed(author$project$Model$Ghost);
-			case 'steel':
-				return elm$json$Json$Decode$succeed(author$project$Model$Steel);
-			case 'fire':
-				return elm$json$Json$Decode$succeed(author$project$Model$Fire);
-			case 'water':
-				return elm$json$Json$Decode$succeed(author$project$Model$Water);
-			case 'grass':
-				return elm$json$Json$Decode$succeed(author$project$Model$Grass);
-			case 'electric':
-				return elm$json$Json$Decode$succeed(author$project$Model$Electric);
-			case 'psychic':
-				return elm$json$Json$Decode$succeed(author$project$Model$Psychic);
-			case 'ice':
-				return elm$json$Json$Decode$succeed(author$project$Model$Ice);
-			case 'dragon':
-				return elm$json$Json$Decode$succeed(author$project$Model$Dragon);
-			case 'dark':
-				return elm$json$Json$Decode$succeed(author$project$Model$Dark);
-			case 'fairy':
-				return elm$json$Json$Decode$succeed(author$project$Model$Fairy);
-			case 'unknown':
-				return elm$json$Json$Decode$succeed(author$project$Model$Unknown);
-			case 'shadow':
-				return elm$json$Json$Decode$succeed(author$project$Model$Shadow);
-			default:
-				return elm$json$Json$Decode$fail('No poketype found');
-		}
-	};
-	return A2(elm$json$Json$Decode$andThen, stringMapper, elm$json$Json$Decode$string);
-}();
-var author$project$Model$Pokemon = function (name) {
-	return function (order) {
-		return function (height) {
-			return function (weight) {
-				return function (pokeType1) {
-					return function (pokeType2) {
-						return function (image) {
-							return function (imageBack) {
-								return function (imageFemale) {
-									return function (specieUrl) {
-										return {height: height, image: image, imageBack: imageBack, imageFemale: imageFemale, name: name, order: order, pokeType1: pokeType1, pokeType2: pokeType2, specieUrl: specieUrl, weight: weight};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var elm$json$Json$Decode$nullable = function (decoder) {
-	return elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, decoder)
-			]));
-};
-var author$project$Api$pokeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+var elm$json$Json$Decode$list = _Json_decodeList;
+var author$project$Api$listPokeMiniDecoder = A2(
+	elm$json$Json$Decode$at,
 	_List_fromArray(
-		['species', 'url']),
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['sprites', 'front_female']),
-		elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-			_List_fromArray(
-				['sprites', 'back_default']),
-			elm$json$Json$Decode$string,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-				_List_fromArray(
-					['sprites', 'front_default']),
-				elm$json$Json$Decode$string,
-				A4(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
-					_List_fromArray(
-						['types', '1', 'type', 'name']),
-					elm$json$Json$Decode$nullable(author$project$Api$typeDecoder),
-					elm$core$Maybe$Nothing,
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-						_List_fromArray(
-							['types', '0', 'type', 'name']),
-						author$project$Api$typeDecoder,
-						A3(
-							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-							'weight',
-							author$project$Api$sizeDecoder,
-							A3(
-								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-								'height',
-								author$project$Api$sizeDecoder,
-								A3(
-									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-									'order',
-									elm$json$Json$Decode$int,
-									A3(
-										NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-										'name',
-										elm$json$Json$Decode$string,
-										elm$json$Json$Decode$succeed(author$project$Model$Pokemon)))))))))));
+		['results']),
+	elm$json$Json$Decode$list(author$project$Api$pokeMiniDecoder));
 var elm$http$Http$Internal$EmptyBody = {$: 'EmptyBody'};
 var elm$http$Http$emptyBody = elm$http$Http$Internal$EmptyBody;
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
@@ -6405,187 +6189,26 @@ var elm$http$Http$get = F2(
 				withCredentials: false
 			});
 	});
-var elm$http$Http$toTask = function (_n0) {
-	var request_ = _n0.a;
-	return A2(_Http_toTask, request_, elm$core$Maybe$Nothing);
+var author$project$Api$getPokemons = A2(elm$http$Http$get, 'https://pokeapi.co/api/v2/pokemon/', author$project$Api$listPokeMiniDecoder);
+var author$project$Model$Black = {$: 'Black'};
+var author$project$Model$Normal = {$: 'Normal'};
+var author$project$Init$snorlax = {
+	pokemon: {height: 2.1, image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png', imageBack: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/143.png', imageFemale: elm$core$Maybe$Nothing, name: 'snorlax', order: 215, pokeType1: author$project$Model$Normal, pokeType2: elm$core$Maybe$Nothing, specieUrl: 'https://pokeapi.co/api/v2/pokemon-species/143/', weight: 460},
+	specie: {color: author$project$Model$Black, evolutionChainUrl: 'https://pokeapi.co/api/v2/evolution-chain/72/', flavorText: 'It eats nearly 900 pounds of food every day.\nIt starts nodding off while eating—and continues\nto eat even while it’s asleep.', genera: 'Sleeping Pokémon'}
 };
-var author$project$Api$getPokemon = function (term) {
-	var url = 'https://pokeapi.co/api/v2/pokemon/' + (term + '/');
-	return elm$http$Http$toTask(
-		A2(elm$http$Http$get, url, author$project$Api$pokeDecoder));
+var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
+var krisajenkins$remotedata$RemoteData$Success = function (a) {
+	return {$: 'Success', a: a};
 };
-var author$project$Model$Blue = {$: 'Blue'};
-var author$project$Model$Brown = {$: 'Brown'};
-var author$project$Model$Green = {$: 'Green'};
-var author$project$Model$Grey = {$: 'Grey'};
-var author$project$Model$Pink = {$: 'Pink'};
-var author$project$Model$Purple = {$: 'Purple'};
-var author$project$Model$Red = {$: 'Red'};
-var author$project$Model$White = {$: 'White'};
-var author$project$Model$Yellow = {$: 'Yellow'};
-var author$project$Api$colorDecoder = function () {
-	var stringMapper = function (s) {
-		switch (s) {
-			case 'black':
-				return elm$json$Json$Decode$succeed(author$project$Model$Black);
-			case 'blue':
-				return elm$json$Json$Decode$succeed(author$project$Model$Blue);
-			case 'brown':
-				return elm$json$Json$Decode$succeed(author$project$Model$Brown);
-			case 'grey':
-				return elm$json$Json$Decode$succeed(author$project$Model$Grey);
-			case 'green':
-				return elm$json$Json$Decode$succeed(author$project$Model$Green);
-			case 'pink':
-				return elm$json$Json$Decode$succeed(author$project$Model$Pink);
-			case 'purple':
-				return elm$json$Json$Decode$succeed(author$project$Model$Purple);
-			case 'red':
-				return elm$json$Json$Decode$succeed(author$project$Model$Red);
-			case 'white':
-				return elm$json$Json$Decode$succeed(author$project$Model$White);
-			case 'yellow':
-				return elm$json$Json$Decode$succeed(author$project$Model$Yellow);
-			default:
-				return elm$json$Json$Decode$fail('No color found');
-		}
-	};
-	return A2(elm$json$Json$Decode$andThen, stringMapper, elm$json$Json$Decode$string);
-}();
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return elm$core$Maybe$Nothing;
-		}
-	});
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var elm$core$Tuple$second = function (_n0) {
-	var y = _n0.b;
-	return y;
+var author$project$Init$initialModel = {
+	evolution: krisajenkins$remotedata$RemoteData$NotAsked,
+	fullPokemon: krisajenkins$remotedata$RemoteData$Success(author$project$Init$snorlax),
+	pokemons: krisajenkins$remotedata$RemoteData$NotAsked,
+	searchInput: 'snorlax'
 };
-var elm$json$Json$Decode$list = _Json_decodeList;
-var elm_community$list_extra$List$Extra$find = F2(
-	function (predicate, list) {
-		find:
-		while (true) {
-			if (!list.b) {
-				return elm$core$Maybe$Nothing;
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				if (predicate(first)) {
-					return elm$core$Maybe$Just(first);
-				} else {
-					var $temp$predicate = predicate,
-						$temp$list = rest;
-					predicate = $temp$predicate;
-					list = $temp$list;
-					continue find;
-				}
-			}
-		}
-	});
-var author$project$Api$englishTextDecoder = function (tupleDecoder) {
-	return A2(
-		elm$json$Json$Decode$andThen,
-		function (entity) {
-			return A2(
-				elm$core$Maybe$withDefault,
-				elm$json$Json$Decode$fail('English translation not found'),
-				A2(
-					elm$core$Maybe$map,
-					A2(elm$core$Basics$composeR, elm$core$Tuple$first, elm$json$Json$Decode$succeed),
-					A2(
-						elm_community$list_extra$List$Extra$find,
-						A2(
-							elm$core$Basics$composeR,
-							elm$core$Tuple$second,
-							elm$core$Basics$eq('en')),
-						entity)));
-		},
-		elm$json$Json$Decode$list(tupleDecoder));
+var author$project$Update$PokemonsLoaded = function (a) {
+	return {$: 'PokemonsLoaded', a: a};
 };
-var elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var author$project$Api$flavorTextDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['language', 'name']),
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'flavor_text',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(elm$core$Tuple$pair)));
-var author$project$Api$genusDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['language', 'name']),
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'genus',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(elm$core$Tuple$pair)));
-var author$project$Model$Specie = F4(
-	function (color, genera, flavorText, evolutionChainUrl) {
-		return {color: color, evolutionChainUrl: evolutionChainUrl, flavorText: flavorText, genera: genera};
-	});
-var author$project$Api$specieDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['evolution_chain', 'url']),
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'flavor_text_entries',
-		author$project$Api$englishTextDecoder(author$project$Api$flavorTextDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'genera',
-			author$project$Api$englishTextDecoder(author$project$Api$genusDecoder),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-				_List_fromArray(
-					['color', 'name']),
-				author$project$Api$colorDecoder,
-				elm$json$Json$Decode$succeed(author$project$Model$Specie)))));
-var author$project$Api$getSpecie = function (pokemon) {
-	return elm$http$Http$toTask(
-		A2(elm$http$Http$get, pokemon.specieUrl, author$project$Api$specieDecoder));
-};
-var author$project$Model$FullPokemon = F2(
-	function (pokemon, specie) {
-		return {pokemon: pokemon, specie: specie};
-	});
-var author$project$Update$PokemonLoaded = function (a) {
-	return {$: 'PokemonLoaded', a: a};
-};
-var elm$core$Task$andThen = _Scheduler_andThen;
-var author$project$Update$flippedAndThen = F2(
-	function (value, _function) {
-		return A2(elm$core$Task$andThen, _function, value);
-	});
-var elm$core$String$toLower = _String_toLower;
 var elm$core$Basics$composeL = F3(
 	function (g, f, x) {
 		return g(
@@ -6594,6 +6217,7 @@ var elm$core$Basics$composeL = F3(
 var elm$core$Task$Perform = function (a) {
 	return {$: 'Perform', a: a};
 };
+var elm$core$Task$andThen = _Scheduler_andThen;
 var elm$core$Task$succeed = _Scheduler_succeed;
 var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$List$map = F2(
@@ -6696,6 +6320,413 @@ var elm$core$Task$attempt = F2(
 							elm$core$Result$Ok),
 						task))));
 	});
+var elm$http$Http$toTask = function (_n0) {
+	var request_ = _n0.a;
+	return A2(_Http_toTask, request_, elm$core$Maybe$Nothing);
+};
+var elm$http$Http$send = F2(
+	function (resultToMessage, request_) {
+		return A2(
+			elm$core$Task$attempt,
+			resultToMessage,
+			elm$http$Http$toTask(request_));
+	});
+var author$project$Init$init = function (_n0) {
+	return _Utils_Tuple2(
+		author$project$Init$initialModel,
+		A2(elm$http$Http$send, author$project$Update$PokemonsLoaded, author$project$Api$getPokemons));
+};
+var elm$core$Platform$Sub$batch = _Platform_batch;
+var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
+var author$project$Subs$subs = function (_n0) {
+	return elm$core$Platform$Sub$none;
+};
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$decodeValue = _Json_run;
+var elm$json$Json$Decode$fail = _Json_fail;
+var elm$json$Json$Decode$null = _Json_decodeNull;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
+var elm$json$Json$Decode$value = _Json_decodeValue;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
+	function (pathDecoder, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						decoder,
+						elm$json$Json$Decode$null(fallback)
+					]));
+		};
+		var handleResult = function (input) {
+			var _n0 = A2(elm$json$Json$Decode$decodeValue, pathDecoder, input);
+			if (_n0.$ === 'Ok') {
+				var rawValue = _n0.a;
+				var _n1 = A2(
+					elm$json$Json$Decode$decodeValue,
+					nullOr(valDecoder),
+					rawValue);
+				if (_n1.$ === 'Ok') {
+					var finalResult = _n1.a;
+					return elm$json$Json$Decode$succeed(finalResult);
+				} else {
+					var finalErr = _n1.a;
+					return elm$json$Json$Decode$fail(
+						elm$json$Json$Decode$errorToString(finalErr));
+				}
+			} else {
+				return elm$json$Json$Decode$succeed(fallback);
+			}
+		};
+		return A2(elm$json$Json$Decode$andThen, handleResult, elm$json$Json$Decode$value);
+	});
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt = F4(
+	function (path, valDecoder, fallback, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
+				A2(elm$json$Json$Decode$at, path, elm$json$Json$Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$at, path, valDecoder),
+			decoder);
+	});
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var elm$json$Json$Decode$map = _Json_map1;
+var author$project$Api$sizeDecoder = A2(
+	elm$json$Json$Decode$map,
+	function (i) {
+		return i / 10;
+	},
+	elm$json$Json$Decode$int);
+var author$project$Model$Bug = {$: 'Bug'};
+var author$project$Model$Dark = {$: 'Dark'};
+var author$project$Model$Dragon = {$: 'Dragon'};
+var author$project$Model$Electric = {$: 'Electric'};
+var author$project$Model$Fairy = {$: 'Fairy'};
+var author$project$Model$Fighting = {$: 'Fighting'};
+var author$project$Model$Fire = {$: 'Fire'};
+var author$project$Model$Flying = {$: 'Flying'};
+var author$project$Model$Ghost = {$: 'Ghost'};
+var author$project$Model$Grass = {$: 'Grass'};
+var author$project$Model$Ground = {$: 'Ground'};
+var author$project$Model$Ice = {$: 'Ice'};
+var author$project$Model$Poison = {$: 'Poison'};
+var author$project$Model$Psychic = {$: 'Psychic'};
+var author$project$Model$Rock = {$: 'Rock'};
+var author$project$Model$Shadow = {$: 'Shadow'};
+var author$project$Model$Steel = {$: 'Steel'};
+var author$project$Model$Unknown = {$: 'Unknown'};
+var author$project$Model$Water = {$: 'Water'};
+var author$project$Api$typeDecoder = function () {
+	var stringMapper = function (s) {
+		switch (s) {
+			case 'normal':
+				return elm$json$Json$Decode$succeed(author$project$Model$Normal);
+			case 'fighting':
+				return elm$json$Json$Decode$succeed(author$project$Model$Fighting);
+			case 'flying':
+				return elm$json$Json$Decode$succeed(author$project$Model$Flying);
+			case 'poison':
+				return elm$json$Json$Decode$succeed(author$project$Model$Poison);
+			case 'ground':
+				return elm$json$Json$Decode$succeed(author$project$Model$Ground);
+			case 'rock':
+				return elm$json$Json$Decode$succeed(author$project$Model$Rock);
+			case 'bug':
+				return elm$json$Json$Decode$succeed(author$project$Model$Bug);
+			case 'ghost':
+				return elm$json$Json$Decode$succeed(author$project$Model$Ghost);
+			case 'steel':
+				return elm$json$Json$Decode$succeed(author$project$Model$Steel);
+			case 'fire':
+				return elm$json$Json$Decode$succeed(author$project$Model$Fire);
+			case 'water':
+				return elm$json$Json$Decode$succeed(author$project$Model$Water);
+			case 'grass':
+				return elm$json$Json$Decode$succeed(author$project$Model$Grass);
+			case 'electric':
+				return elm$json$Json$Decode$succeed(author$project$Model$Electric);
+			case 'psychic':
+				return elm$json$Json$Decode$succeed(author$project$Model$Psychic);
+			case 'ice':
+				return elm$json$Json$Decode$succeed(author$project$Model$Ice);
+			case 'dragon':
+				return elm$json$Json$Decode$succeed(author$project$Model$Dragon);
+			case 'dark':
+				return elm$json$Json$Decode$succeed(author$project$Model$Dark);
+			case 'fairy':
+				return elm$json$Json$Decode$succeed(author$project$Model$Fairy);
+			case 'unknown':
+				return elm$json$Json$Decode$succeed(author$project$Model$Unknown);
+			case 'shadow':
+				return elm$json$Json$Decode$succeed(author$project$Model$Shadow);
+			default:
+				return elm$json$Json$Decode$fail('No poketype found');
+		}
+	};
+	return A2(elm$json$Json$Decode$andThen, stringMapper, elm$json$Json$Decode$string);
+}();
+var author$project$Model$Pokemon = function (name) {
+	return function (order) {
+		return function (height) {
+			return function (weight) {
+				return function (pokeType1) {
+					return function (pokeType2) {
+						return function (image) {
+							return function (imageBack) {
+								return function (imageFemale) {
+									return function (specieUrl) {
+										return {height: height, image: image, imageBack: imageBack, imageFemale: imageFemale, name: name, order: order, pokeType1: pokeType1, pokeType2: pokeType2, specieUrl: specieUrl, weight: weight};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var elm$json$Json$Decode$nullable = function (decoder) {
+	return elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, decoder)
+			]));
+};
+var author$project$Api$pokeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['species', 'url']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['sprites', 'front_female']),
+		elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			_List_fromArray(
+				['sprites', 'back_default']),
+			elm$json$Json$Decode$string,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+				_List_fromArray(
+					['sprites', 'front_default']),
+				elm$json$Json$Decode$string,
+				A4(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
+					_List_fromArray(
+						['types', '1', 'type', 'name']),
+					elm$json$Json$Decode$nullable(author$project$Api$typeDecoder),
+					elm$core$Maybe$Nothing,
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+						_List_fromArray(
+							['types', '0', 'type', 'name']),
+						author$project$Api$typeDecoder,
+						A3(
+							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+							'weight',
+							author$project$Api$sizeDecoder,
+							A3(
+								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+								'height',
+								author$project$Api$sizeDecoder,
+								A3(
+									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+									'order',
+									elm$json$Json$Decode$int,
+									A3(
+										NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+										'name',
+										elm$json$Json$Decode$string,
+										elm$json$Json$Decode$succeed(author$project$Model$Pokemon)))))))))));
+var author$project$Api$getPokemon = function (term) {
+	var url = 'https://pokeapi.co/api/v2/pokemon/' + (term + '/');
+	return elm$http$Http$toTask(
+		A2(elm$http$Http$get, url, author$project$Api$pokeDecoder));
+};
+var author$project$Model$Blue = {$: 'Blue'};
+var author$project$Model$Brown = {$: 'Brown'};
+var author$project$Model$Green = {$: 'Green'};
+var author$project$Model$Grey = {$: 'Grey'};
+var author$project$Model$Pink = {$: 'Pink'};
+var author$project$Model$Purple = {$: 'Purple'};
+var author$project$Model$Red = {$: 'Red'};
+var author$project$Model$White = {$: 'White'};
+var author$project$Model$Yellow = {$: 'Yellow'};
+var author$project$Api$colorDecoder = function () {
+	var stringMapper = function (s) {
+		switch (s) {
+			case 'black':
+				return elm$json$Json$Decode$succeed(author$project$Model$Black);
+			case 'blue':
+				return elm$json$Json$Decode$succeed(author$project$Model$Blue);
+			case 'brown':
+				return elm$json$Json$Decode$succeed(author$project$Model$Brown);
+			case 'grey':
+				return elm$json$Json$Decode$succeed(author$project$Model$Grey);
+			case 'green':
+				return elm$json$Json$Decode$succeed(author$project$Model$Green);
+			case 'pink':
+				return elm$json$Json$Decode$succeed(author$project$Model$Pink);
+			case 'purple':
+				return elm$json$Json$Decode$succeed(author$project$Model$Purple);
+			case 'red':
+				return elm$json$Json$Decode$succeed(author$project$Model$Red);
+			case 'white':
+				return elm$json$Json$Decode$succeed(author$project$Model$White);
+			case 'yellow':
+				return elm$json$Json$Decode$succeed(author$project$Model$Yellow);
+			default:
+				return elm$json$Json$Decode$fail('No color found');
+		}
+	};
+	return A2(elm$json$Json$Decode$andThen, stringMapper, elm$json$Json$Decode$string);
+}();
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var elm$core$Tuple$second = function (_n0) {
+	var y = _n0.b;
+	return y;
+};
+var elm_community$list_extra$List$Extra$find = F2(
+	function (predicate, list) {
+		find:
+		while (true) {
+			if (!list.b) {
+				return elm$core$Maybe$Nothing;
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				if (predicate(first)) {
+					return elm$core$Maybe$Just(first);
+				} else {
+					var $temp$predicate = predicate,
+						$temp$list = rest;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue find;
+				}
+			}
+		}
+	});
+var author$project$Api$englishTextDecoder = function (tupleDecoder) {
+	return A2(
+		elm$json$Json$Decode$andThen,
+		function (entity) {
+			return A2(
+				elm$core$Maybe$withDefault,
+				elm$json$Json$Decode$fail('English translation not found'),
+				A2(
+					elm$core$Maybe$map,
+					A2(elm$core$Basics$composeR, elm$core$Tuple$first, elm$json$Json$Decode$succeed),
+					A2(
+						elm_community$list_extra$List$Extra$find,
+						A2(
+							elm$core$Basics$composeR,
+							elm$core$Tuple$second,
+							elm$core$Basics$eq('en')),
+						entity)));
+		},
+		elm$json$Json$Decode$list(tupleDecoder));
+};
+var elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var author$project$Api$flavorTextDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['language', 'name']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'flavor_text',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(elm$core$Tuple$pair)));
+var author$project$Api$genusDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['language', 'name']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'genus',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(elm$core$Tuple$pair)));
+var author$project$Model$Specie = F4(
+	function (color, genera, flavorText, evolutionChainUrl) {
+		return {color: color, evolutionChainUrl: evolutionChainUrl, flavorText: flavorText, genera: genera};
+	});
+var author$project$Api$specieDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['evolution_chain', 'url']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'flavor_text_entries',
+		author$project$Api$englishTextDecoder(author$project$Api$flavorTextDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'genera',
+			author$project$Api$englishTextDecoder(author$project$Api$genusDecoder),
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+				_List_fromArray(
+					['color', 'name']),
+				author$project$Api$colorDecoder,
+				elm$json$Json$Decode$succeed(author$project$Model$Specie)))));
+var author$project$Api$getSpecie = function (pokemon) {
+	return elm$http$Http$toTask(
+		A2(elm$http$Http$get, pokemon.specieUrl, author$project$Api$specieDecoder));
+};
+var author$project$Model$FullPokemon = F2(
+	function (pokemon, specie) {
+		return {pokemon: pokemon, specie: specie};
+	});
+var author$project$Update$PokemonLoaded = function (a) {
+	return {$: 'PokemonLoaded', a: a};
+};
+var author$project$Update$flippedAndThen = F2(
+	function (value, _function) {
+		return A2(elm$core$Task$andThen, _function, value);
+	});
+var elm$core$Platform$Cmd$batch = _Platform_batch;
+var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
+var elm$core$String$toLower = _String_toLower;
 var krisajenkins$remotedata$RemoteData$Failure = function (a) {
 	return {$: 'Failure', a: a};
 };
@@ -6753,11 +6784,21 @@ var author$project$Update$update = F2(
 						elm$core$Platform$Cmd$none);
 				}
 			case 'SearchPokemons':
-				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{pokemons: krisajenkins$remotedata$RemoteData$Loading}),
+					A2(elm$http$Http$send, author$project$Update$PokemonsLoaded, author$project$Api$getPokemons));
 			default:
 				if (msg.a.$ === 'Ok') {
 					var pokemons = msg.a.a;
-					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								pokemons: krisajenkins$remotedata$RemoteData$Success(pokemons)
+							}),
+						elm$core$Platform$Cmd$none);
 				} else {
 					var error = msg.a.a;
 					return _Utils_Tuple2(
@@ -7462,6 +7503,74 @@ var author$project$View$body = function (model) {
 				]);
 	}
 };
+var author$project$View$pokedex = function (model) {
+	var _n0 = model.pokemons;
+	switch (_n0.$) {
+		case 'Success':
+			var pokemons = _n0.a;
+			return _List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('container mx-auto flex flex-wrap items-center')
+						]),
+					A2(
+						elm$core$List$map,
+						function (pokemon) {
+							return A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('flex items-center flex-col')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$img,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$src('https://img.pokemondb.net/sprites/omega-ruby-alpha-sapphire/dex/normal/' + (pokemon.name + '.png'))
+											]),
+										_List_Nil),
+										A2(
+										elm$html$Html$div,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text(pokemon.name)
+											]))
+									]));
+						},
+						pokemons))
+				]);
+		case 'Loading':
+			return _List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text('pokedek loading...')
+						]))
+				]);
+		case 'Failure':
+			return _List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text('Something is wrong loading the pokedex =(')
+						]))
+				]);
+		default:
+			return _List_Nil;
+	}
+};
 var krisajenkins$remotedata$RemoteData$map = F2(
 	function (f, data) {
 		switch (data.$) {
@@ -7514,7 +7623,11 @@ var author$project$View$view = function (model) {
 					[
 						elm$html$Html$Attributes$class('container max-w-sm mx-auto my-4')
 					]),
-				author$project$View$body(model))
+				author$project$View$body(model)),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				author$project$View$pokedex(model))
 			]),
 		title: pokeName
 	};

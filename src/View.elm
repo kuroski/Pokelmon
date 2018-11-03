@@ -26,8 +26,38 @@ view model =
         [ div
             [ class "container max-w-sm mx-auto my-4" ]
             (body model)
+        , div []
+            (pokedex model)
         ]
     }
+
+
+pokedex : Model -> List (Html Msg)
+pokedex model =
+    case model.pokemons of
+        RemoteData.Success pokemons ->
+            [ div [ class "container mx-auto flex flex-wrap items-center" ]
+                (List.map
+                    (\pokemon ->
+                        div [ class "flex items-center flex-col" ]
+                            [ img [ src <| "https://img.pokemondb.net/sprites/omega-ruby-alpha-sapphire/dex/normal/" ++ pokemon.name ++ ".png" ] []
+                            , div [] [ text pokemon.name ]
+                            ]
+                    )
+                    pokemons
+                )
+            ]
+
+        RemoteData.Loading ->
+            [ div [] [ text "pokedek loading..." ]
+            ]
+
+        RemoteData.Failure _ ->
+            [ div [] [ text "Something is wrong loading the pokedex =(" ]
+            ]
+
+        RemoteData.NotAsked ->
+            []
 
 
 body : Model -> List (Html Msg)
@@ -169,19 +199,19 @@ pokeView fullPokemon colorAttributes =
     in
     div [ class cardClasses ]
         [ pokemonBaseView fullPokemon colorAttributes
-        , div [ class "ml-6" ] [
-            div [ class "flex font-thin text-sm mb-2" ] [
-                div [ class "flex items-center mr-4" ] [
-                    i [ class "fas fa-text-height mr-2" ][]
-                    , div [] [ text <| String.fromFloat fullPokemon.pokemon.height ++ " (m)"]
-                 ]
-                 , div [ class "flex items-center" ] [
-                     i [ class "fas fa-weight mr-2" ] []
-                     , div [] [ text <| String.fromFloat fullPokemon.pokemon.weight ++ " (kg)"]
-                 ]
-            ]
+        , div [ class "ml-6" ]
+            [ div [ class "flex font-thin text-sm mb-2" ]
+                [ div [ class "flex items-center mr-4" ]
+                    [ i [ class "fas fa-text-height mr-2" ] []
+                    , div [] [ text <| String.fromFloat fullPokemon.pokemon.height ++ " (m)" ]
+                    ]
+                , div [ class "flex items-center" ]
+                    [ i [ class "fas fa-weight mr-2" ] []
+                    , div [] [ text <| String.fromFloat fullPokemon.pokemon.weight ++ " (kg)" ]
+                    ]
+                ]
             , div [ class "font-light" ] [ text fullPokemon.specie.flavorText ]
-        ]
+            ]
         ]
 
 
@@ -207,10 +237,10 @@ pokemonBaseView fullPokemon colorAttributes =
             ]
         , div [ class "uppercase font-normal text-3xl" ] [ text fullPokemon.pokemon.name ]
         , div [ class "text-xs mb-2" ] [ text fullPokemon.specie.genera ]
-        , div [ class "flex items-center" ] [
-            pokeTypeView (Just fullPokemon.pokemon.pokeType1)
+        , div [ class "flex items-center" ]
+            [ pokeTypeView (Just fullPokemon.pokemon.pokeType1)
             , pokeTypeView fullPokemon.pokemon.pokeType2
-        ]
+            ]
         , img [ class "mt-2", src <| "https://img.pokemondb.net/artwork/" ++ fullPokemon.pokemon.name ++ ".jpg" ] []
         ]
 

@@ -1,9 +1,10 @@
 module Init exposing (init)
 
+import Http
+import Api exposing (getPokemons)
+import Update exposing (Msg(..))
 import Model exposing (Model, PokeColor(..), PokeType(..))
 import RemoteData exposing (RemoteData(..))
-
-
 
 -- initialModel : Model
 -- initialModel =
@@ -44,6 +45,6 @@ initialModel =
     }
 
 
-init : a -> ( Model, Cmd b )
+init : a -> ( Model, Cmd Msg )
 init _ =
-    ( initialModel, Cmd.none )
+    ( initialModel, (Http.send PokemonsLoaded getPokemons) )

@@ -1,6 +1,6 @@
 module Update exposing (Msg(..), update)
 
-import Api exposing (getEvolutionChain, getPokemon, getSpecie)
+import Api exposing (getEvolutionChain, getPokemon, getSpecie, getPokemons)
 import Http
 import Model exposing (FullPokemon, MiniPokemon, Model, Pokemon, Specie)
 import RemoteData exposing (RemoteData(..))
@@ -48,10 +48,10 @@ update msg model =
             ( { model | fullPokemon = Failure error }, Cmd.none )
 
         SearchPokemons ->
-            ( model, Cmd.none )
+            ( { model | pokemons = Loading }, (Http.send PokemonsLoaded getPokemons) )
 
         PokemonsLoaded ( Ok pokemons ) ->
-            ( model, Cmd.none )
+            ( { model | pokemons = Success pokemons }, Cmd.none )
 
         PokemonsLoaded ( Err error ) ->
             ( { model | pokemons = Failure error }, Cmd.none )
