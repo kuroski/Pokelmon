@@ -3,7 +3,7 @@ module View exposing (view)
 import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, onClick, onSubmit)
+import Html.Events exposing (on, onClick, onInput, onSubmit)
 import Json.Decode
 import Model exposing (FullPokemon, MiniPokemon, Model, PokeColor(..), PokeType(..), Specie)
 import RemoteData
@@ -25,38 +25,55 @@ view model =
     in
     { title = pokeName
     , body =
-        pokedex model
+        [ searchInput model.searchText
+        , pokedex model
+        ]
     }
 
 
-pokedex : Model -> List (Html Msg)
-pokedex model =
-    case model.pokemons of
-        RemoteData.Success pokemons ->
-            [ div [ class "mx-auto pokegrid" ]
-                (List.indexedMap
-                    (\index pokemon ->
-                        pokemonMiniView model index pokemon
-                    )
-                    pokemons
-                )
+searchInput : String -> Html Msg
+searchInput searchText =
+    div [ class "container flex justify-center mx-auto mt-4" ]
+        [ input
+            [ class "shadow appearance-none border rounded-l py-2 px-3 leading-tight flex-1"
+            , onInput SearchInputChanged
             ]
+            [ text searchText ]
+        ]
+
+pokedex : Model -> Html Msg
+pokedex model =
+    let
+        filteredPokemons =
+            RemoteData.map
+                (\pokemons ->
+                    List.filter
+                        (.name
+                            >> String.toLower
+                            >> String.contains (String.toLower model.searchText)
+                        )
+                        pokemons
+                )
+                model.pokemons
+    in
+    case filteredPokemons of
+        RemoteData.Success pokemons ->
+            div [ class "mx-auto pokegrid" ]
+                (List.indexedMap (pokemonMiniView model) pokemons)
 
         RemoteData.Loading ->
-            [ div [] [ text "pokedek loading..." ]
-            ]
+            div [] [ text "pokedek loading..." ]
 
         RemoteData.Failure _ ->
-            [ div [] [ text "Something is wrong loading the pokedex =(" ]
-            ]
+            div [] [ text "Something is wrong loading the pokedex =(" ]
 
         RemoteData.NotAsked ->
-            []
+            div [] []
 
 
 pokemonMiniView : Model -> Int -> MiniPokemon -> Html Msg
 pokemonMiniView model index pokemon =
-    div [class "relative"]
+    div [ class "relative" ]
         [ div
             [ class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
             , onClick <| PokemonClicked index pokemon.name

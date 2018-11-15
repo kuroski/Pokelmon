@@ -10,7 +10,8 @@ import Task exposing (Task)
 
 
 type Msg
-    = PokemonLoaded (Result Http.Error FullPokemon)
+    = SearchInputChanged String
+    | PokemonLoaded (Result Http.Error FullPokemon)
     | SearchPokemons
     | PokemonsLoaded (Result Http.Error (List MiniPokemon))
     | ImageError Int
@@ -38,6 +39,8 @@ getFullPokemon name =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        SearchInputChanged text ->
+            ({model | searchText = text}, Cmd.none)
         PokemonLoaded (Ok fullPokemon) ->
             ( { model | fullPokemon = Success fullPokemon }
             , Cmd.none

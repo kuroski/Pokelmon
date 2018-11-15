@@ -73,7 +73,8 @@ type alias MiniPokemon =
 
 
 type alias Model =
-    { fullPokemon : WebData FullPokemon
+    { searchText:  String
+    , fullPokemon : WebData FullPokemon
     , pokemons : WebData (List MiniPokemon)
     , evolution : WebData String
     , imageErrors : Set Int

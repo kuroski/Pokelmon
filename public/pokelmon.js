@@ -6219,7 +6219,7 @@ var elm$core$Set$Set_elm_builtin = function (a) {
 };
 var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var author$project$Init$initialModel = {evolution: krisajenkins$remotedata$RemoteData$NotAsked, fullPokemon: krisajenkins$remotedata$RemoteData$NotAsked, imageErrors: elm$core$Set$empty, pokemons: krisajenkins$remotedata$RemoteData$NotAsked, selectedPokemonIndex: -1};
+var author$project$Init$initialModel = {evolution: krisajenkins$remotedata$RemoteData$NotAsked, fullPokemon: krisajenkins$remotedata$RemoteData$NotAsked, imageErrors: elm$core$Set$empty, pokemons: krisajenkins$remotedata$RemoteData$NotAsked, searchText: '', selectedPokemonIndex: -1};
 var author$project$Update$PokemonsLoaded = function (a) {
 	return {$: 'PokemonsLoaded', a: a};
 };
@@ -6753,6 +6753,13 @@ var krisajenkins$remotedata$RemoteData$Success = function (a) {
 var author$project$Update$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
+			case 'SearchInputChanged':
+				var text = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{searchText: text}),
+					elm$core$Platform$Cmd$none);
 			case 'PokemonLoaded':
 				if (msg.a.$ === 'Ok') {
 					var fullPokemon = msg.a.a;
@@ -7359,53 +7366,18 @@ var author$project$View$pokemonMiniView = F3(
 						]))
 				]));
 	});
-var author$project$View$pokedex = function (model) {
-	var _n0 = model.pokemons;
-	switch (_n0.$) {
-		case 'Success':
-			var pokemons = _n0.a;
-			return _List_fromArray(
-				[
-					A2(
-					elm$html$Html$div,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('mx-auto pokegrid')
-						]),
-					A2(
-						elm$core$List$indexedMap,
-						F2(
-							function (index, pokemon) {
-								return A3(author$project$View$pokemonMiniView, model, index, pokemon);
-							}),
-						pokemons))
-				]);
-		case 'Loading':
-			return _List_fromArray(
-				[
-					A2(
-					elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							elm$html$Html$text('pokedek loading...')
-						]))
-				]);
-		case 'Failure':
-			return _List_fromArray(
-				[
-					A2(
-					elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							elm$html$Html$text('Something is wrong loading the pokedex =(')
-						]))
-				]);
-		default:
-			return _List_Nil;
-	}
-};
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var elm$core$String$contains = _String_contains;
 var krisajenkins$remotedata$RemoteData$map = F2(
 	function (f, data) {
 		switch (data.$) {
@@ -7422,6 +7394,111 @@ var krisajenkins$remotedata$RemoteData$map = F2(
 				return krisajenkins$remotedata$RemoteData$Failure(error);
 		}
 	});
+var author$project$View$pokedex = function (model) {
+	var filteredPokemons = A2(
+		krisajenkins$remotedata$RemoteData$map,
+		function (pokemons) {
+			return A2(
+				elm$core$List$filter,
+				A2(
+					elm$core$Basics$composeR,
+					function ($) {
+						return $.name;
+					},
+					A2(
+						elm$core$Basics$composeR,
+						elm$core$String$toLower,
+						elm$core$String$contains(
+							elm$core$String$toLower(model.searchText)))),
+				pokemons);
+		},
+		model.pokemons);
+	switch (filteredPokemons.$) {
+		case 'Success':
+			var pokemons = filteredPokemons.a;
+			return A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mx-auto pokegrid')
+					]),
+				A2(
+					elm$core$List$indexedMap,
+					author$project$View$pokemonMiniView(model),
+					pokemons));
+		case 'Loading':
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('pokedek loading...')
+					]));
+		case 'Failure':
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Something is wrong loading the pokedex =(')
+					]));
+		default:
+			return A2(elm$html$Html$div, _List_Nil, _List_Nil);
+	}
+};
+var author$project$Update$SearchInputChanged = function (a) {
+	return {$: 'SearchInputChanged', a: a};
+};
+var elm$html$Html$input = _VirtualDom_node('input');
+var elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var elm$html$Html$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
+};
+var author$project$View$searchInput = function (searchText) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('container flex justify-center mx-auto mt-4')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$input,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('shadow appearance-none border rounded-l py-2 px-3 leading-tight flex-1'),
+						elm$html$Html$Events$onInput(author$project$Update$SearchInputChanged)
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(searchText)
+					]))
+			]));
+};
 var krisajenkins$remotedata$RemoteData$withDefault = F2(
 	function (_default, data) {
 		if (data.$ === 'Success') {
@@ -7450,7 +7527,11 @@ var author$project$View$view = function (model) {
 				},
 				model.fullPokemon)));
 	return {
-		body: author$project$View$pokedex(model),
+		body: _List_fromArray(
+			[
+				author$project$View$searchInput(model.searchText),
+				author$project$View$pokedex(model)
+			]),
 		title: pokeName
 	};
 };
@@ -9388,7 +9469,6 @@ var elm$browser$Debugger$Metadata$ProblemType = F2(
 	function (name, problems) {
 		return {name: name, problems: problems};
 	});
-var elm$core$String$contains = _String_contains;
 var elm$browser$Debugger$Metadata$hasProblem = F2(
 	function (tipe, _n0) {
 		var problem = _n0.a;
@@ -11006,4 +11086,4 @@ var elm$browser$Browser$document = _Browser_document;
 var author$project$Main$main = elm$browser$Browser$document(
 	{init: author$project$Init$init, subscriptions: author$project$Subs$subs, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"],"ImageError":["Basics.Int"],"PokemonClicked":["Basics.Int","String.String"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"SearchInputChanged":["String.String"],"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"],"ImageError":["Basics.Int"],"PokemonClicked":["Basics.Int","String.String"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));

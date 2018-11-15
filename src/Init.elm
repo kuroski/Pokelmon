@@ -10,7 +10,7 @@ import Update exposing (Msg(..))
 
 initialModel : Model
 initialModel =
-    { fullPokemon = NotAsked
+    { searchText = "",fullPokemon = NotAsked
     , pokemons = NotAsked
     , evolution = NotAsked
     , imageErrors = Set.empty
