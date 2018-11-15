@@ -43,7 +43,7 @@ pokedex model =
                     (\index pokemon ->
                         div [
                             class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
-                            , onClick <| SearchPokemon pokemon.name
+                            , onClick <| PokemonClicked pokemon.name
                         ]
                             [ pokemonImageView model.imageErrors index pokemon.name ]
                     )
