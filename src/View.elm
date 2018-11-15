@@ -3,7 +3,7 @@ module View exposing (view)
 import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, onClick, onInput, onSubmit)
+import Html.Events exposing (on, onClick, onSubmit)
 import Json.Decode
 import Model exposing (FullPokemon, Model, PokeColor(..), PokeType(..), Specie)
 import RemoteData
@@ -25,10 +25,7 @@ view model =
     in
     { title = pokeName
     , body =
-        [ div
-            [ class "container max-w-sm mx-auto my-4" ]
-            (body model)
-        , div []
+        [ div []
             (pokedex model)
         ]
     }
@@ -41,10 +38,10 @@ pokedex model =
             [ div [ class "mx-auto pokegrid" ]
                 (List.indexedMap
                     (\index pokemon ->
-                        div [
-                            class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
+                        div
+                            [ class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
                             , onClick <| PokemonClicked pokemon.name
-                        ]
+                            ]
                             [ pokemonImageView model.imageErrors index pokemon.name ]
                     )
                     pokemons
@@ -81,30 +78,6 @@ pokemonImageView set index name =
         []
 
 
-body : Model -> List (Html Msg)
-body model =
-    case model.fullPokemon of
-        RemoteData.Success fullPokemon ->
-            [ viewSearchInput False model.searchInput (pokeColorAttributes fullPokemon.specie.color)
-            , pokeView fullPokemon (pokeColorAttributes fullPokemon.specie.color)
-            ]
-
-        RemoteData.Loading ->
-            [ viewSearchInput True model.searchInput (pokeColorAttributes Purple)
-            , viewLoading
-            ]
-
-        RemoteData.Failure _ ->
-            [ viewSearchInput False model.searchInput (pokeColorAttributes Purple)
-            , viewFailure
-            ]
-
-        RemoteData.NotAsked ->
-            [ viewSearchInput False model.searchInput (pokeColorAttributes Purple)
-            , viewNotAsked
-            ]
-
-
 viewFailure : Html Msg
 viewFailure =
     div []
@@ -122,73 +95,6 @@ viewFailure =
 viewNotAsked : Html Msg
 viewNotAsked =
     div [] []
-
-
-viewSearchInput : Bool -> String -> ColorAttributes -> Html Msg
-viewSearchInput isLoading searchInput { background, hover, text, color, focusBorder } =
-    let
-        inputColorClass =
-            String.join " "
-                [ color
-                , focusBorder
-                , "shadow"
-                , "appearance-none"
-                , "border"
-                , "rounded-l"
-                , "py-2"
-                , "px-3"
-                , "leading-tight"
-                , "flex-1"
-                ]
-
-        submitColorClass =
-            String.join " "
-                [ background
-                , hover
-                , text
-                , "shadow"
-                , "border-b"
-                , "border-t"
-                , "text-white"
-                , "leading-tight"
-                , "font-bold"
-                , "py-2"
-                , "px-4"
-                , "rounded-r-lg"
-                ]
-    in
-    Html.form
-        [ onSubmit <| SearchPokemon searchInput
-        , class "mb-8 flex items-center"
-        ]
-        [ input
-            [ type_ "text"
-            , placeholder "Search your pokemon"
-            , value searchInput
-            , autofocus True
-            , onInput SetSearchInput
-            , class inputColorClass
-            , disabled isLoading
-            ]
-            []
-        , button
-            [ class submitColorClass
-            , type_ "submit"
-            ]
-            [ viewSearchButtonIcon isLoading
-            ]
-        ]
-
-
-viewSearchButtonIcon : Bool -> Html Msg
-viewSearchButtonIcon isLoading =
-    i
-        [ classList
-            [ ( "fas fa-spinner fa-pulse", isLoading )
-            , ( "fas fa-search", not isLoading )
-            ]
-        ]
-        []
 
 
 viewLoading : Html Msg

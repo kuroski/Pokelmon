@@ -1,16 +1,16 @@
 module Init exposing (init)
 
-import Http
 import Api exposing (getPokemons)
-import Update exposing (Msg(..))
+import Http
 import Model exposing (Model, PokeColor(..), PokeType(..))
 import RemoteData exposing (RemoteData(..))
 import Set
+import Update exposing (Msg(..))
+
 
 initialModel : Model
 initialModel =
-    { searchInput = ""
-    , fullPokemon = NotAsked
+    { fullPokemon = NotAsked
     , pokemons = NotAsked
     , evolution = NotAsked
     , imageErrors = Set.empty
@@ -19,4 +19,4 @@ initialModel =
 
 init : a -> ( Model, Cmd Msg )
 init _ =
-    ( initialModel, (Http.send PokemonsLoaded getPokemons) )
+    ( initialModel, Http.send PokemonsLoaded getPokemons )

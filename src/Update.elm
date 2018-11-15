@@ -10,9 +10,7 @@ import Task exposing (Task)
 
 
 type Msg
-    = SetSearchInput String
-    | SearchPokemon String
-    | PokemonLoaded (Result Http.Error FullPokemon)
+    = PokemonLoaded (Result Http.Error FullPokemon)
     | SearchPokemons
     | PokemonsLoaded (Result Http.Error (List MiniPokemon))
     | ImageError Int
@@ -40,14 +38,6 @@ getFullPokemon name =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SetSearchInput value ->
-            ( { model | searchInput = value }, Cmd.none )
-
-        SearchPokemon name ->
-            ( { model | fullPokemon = Loading }
-            , getFullPokemon name
-            )
-
         PokemonLoaded (Ok fullPokemon) ->
             ( { model | fullPokemon = Success fullPokemon }
             , Cmd.none
@@ -69,6 +59,6 @@ update msg model =
             ( { model | imageErrors = Set.insert index model.imageErrors }, Cmd.none )
 
         PokemonClicked name ->
-            ( { model | fullPokemon = Loading, searchInput = name }
+            ( { model | fullPokemon = Loading }
             , getFullPokemon name
             )

@@ -3,6 +3,7 @@ module Model exposing (FullPokemon, MiniPokemon, Model, PokeColor(..), PokeType(
 import RemoteData exposing (WebData)
 import Set exposing (Set)
 
+
 type PokeType
     = Normal
     | Fighting
@@ -74,8 +75,7 @@ type alias MiniPokemon =
 
 
 type alias Model =
-    { searchInput : String
-    , fullPokemon : WebData FullPokemon
+    { fullPokemon : WebData FullPokemon
     , pokemons : WebData (List MiniPokemon)
     , evolution : WebData String
     , imageErrors : Set Int

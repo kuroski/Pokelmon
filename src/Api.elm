@@ -1,10 +1,10 @@
-module Api exposing (getEvolutionChain, getPokemon, getSpecie, getPokemons)
+module Api exposing (getEvolutionChain, getPokemon, getPokemons, getSpecie)
 
 import Http
 import Json.Decode as Decode exposing (Decoder, at, int, list, nullable, string)
 import Json.Decode.Pipeline exposing (optionalAt, required, requiredAt)
 import List.Extra as ListExtra
-import Model exposing (PokeColor(..), PokeType(..), Pokemon, Specie, MiniPokemon)
+import Model exposing (MiniPokemon, PokeColor(..), PokeType(..), Pokemon, Specie)
 import Task exposing (Task)
 
 
@@ -22,7 +22,7 @@ specieDecoder =
         |> requiredAt [ "evolution_chain", "url" ] string
 
 
-englishTextDecoder : Decoder (String, String) -> Decoder String
+englishTextDecoder : Decoder ( String, String ) -> Decoder String
 englishTextDecoder tupleDecoder =
     list tupleDecoder
         |> Decode.andThen
@@ -181,9 +181,11 @@ typeDecoder =
     in
     Decode.andThen stringMapper string
 
+
 listPokeMiniDecoder : Decoder (List MiniPokemon)
 listPokeMiniDecoder =
-    Decode.at ["results"] (list pokeMiniDecoder)
+    Decode.at [ "results" ] (list pokeMiniDecoder)
+
 
 pokeMiniDecoder : Decoder MiniPokemon
 pokeMiniDecoder =
@@ -191,9 +193,11 @@ pokeMiniDecoder =
         |> required "name" string
         |> required "url" string
 
+
 getPokemons : Http.Request (List MiniPokemon)
 getPokemons =
     Http.get "https://pokeapi.co/api/v2/pokemon/" listPokeMiniDecoder
+
 
 getPokemon : String -> Task Http.Error Pokemon
 getPokemon term =
