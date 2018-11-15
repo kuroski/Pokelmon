@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onSubmit)
 import Json.Decode
-import Model exposing (FullPokemon, Model, PokeColor(..), PokeType(..), Specie)
+import Model exposing (FullPokemon, MiniPokemon, Model, PokeColor(..), PokeType(..), Specie)
 import RemoteData
 import Set exposing (Set)
 import Svg exposing (path, svg)
@@ -25,9 +25,7 @@ view model =
     in
     { title = pokeName
     , body =
-        [ div []
-            (pokedex model)
-        ]
+        pokedex model
     }
 
 
@@ -38,11 +36,7 @@ pokedex model =
             [ div [ class "mx-auto pokegrid" ]
                 (List.indexedMap
                     (\index pokemon ->
-                        div
-                            [ class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
-                            , onClick <| PokemonClicked pokemon.name
-                            ]
-                            [ pokemonImageView model.imageErrors index pokemon.name ]
+                        pokemonMiniView model index pokemon
                     )
                     pokemons
                 )
@@ -58,6 +52,26 @@ pokedex model =
 
         RemoteData.NotAsked ->
             []
+
+
+pokemonMiniView : Model -> Int -> MiniPokemon -> Html Msg
+pokemonMiniView model index pokemon =
+    div [class "relative"]
+        [ div
+            [ class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
+            , onClick <| PokemonClicked index pokemon.name
+            ]
+            [ pokemonImageView model.imageErrors index pokemon.name
+            ]
+        , div []
+            [ case ( model.fullPokemon, model.selectedPokemonIndex == index ) of
+                ( RemoteData.Success fullPokemon, True ) ->
+                    pokeView fullPokemon (pokeColorAttributes fullPokemon.specie.color)
+
+                _ ->
+                    text ""
+            ]
+        ]
 
 
 pokemonImageView : Set Int -> Int -> String -> Html Msg
@@ -117,11 +131,13 @@ pokeView fullPokemon colorAttributes =
                 , "border-2"
                 , "max-w-sm"
                 , "rounded-lg"
-                , "overflow-hidden"
+                , "absolute"
                 , "shadow-lg"
                 , "p-6"
                 , "flex"
                 , "justify-between"
+                , "bg-white"
+                , "z-10"
                 ]
     in
     div [ class cardClasses ]

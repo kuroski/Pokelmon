@@ -6211,12 +6211,15 @@ var elm$http$Http$get = F2(
 			});
 	});
 var author$project$Api$getPokemons = A2(elm$http$Http$get, 'https://pokeapi.co/api/v2/pokemon/', author$project$Api$listPokeMiniDecoder);
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
 var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var author$project$Init$initialModel = {evolution: krisajenkins$remotedata$RemoteData$NotAsked, fullPokemon: krisajenkins$remotedata$RemoteData$NotAsked, imageErrors: elm$core$Set$empty, pokemons: krisajenkins$remotedata$RemoteData$NotAsked};
+var author$project$Init$initialModel = {evolution: krisajenkins$remotedata$RemoteData$NotAsked, fullPokemon: krisajenkins$remotedata$RemoteData$NotAsked, imageErrors: elm$core$Set$empty, pokemons: krisajenkins$remotedata$RemoteData$NotAsked, selectedPokemonIndex: -1};
 var author$project$Update$PokemonsLoaded = function (a) {
 	return {$: 'PokemonsLoaded', a: a};
 };
@@ -6831,17 +6834,433 @@ var author$project$Update$update = F2(
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
-				var name = msg.a;
+				var index = msg.a;
+				var name = msg.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{fullPokemon: krisajenkins$remotedata$RemoteData$Loading}),
+						{fullPokemon: krisajenkins$remotedata$RemoteData$Loading, selectedPokemonIndex: index}),
 					author$project$Update$getFullPokemon(name));
 		}
 	});
-var author$project$Update$PokemonClicked = function (a) {
-	return {$: 'PokemonClicked', a: a};
+var author$project$Update$PokemonClicked = F2(
+	function (a, b) {
+		return {$: 'PokemonClicked', a: a, b: b};
+	});
+var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
+	switch (handler.$) {
+		case 'Normal':
+			return 0;
+		case 'MayStopPropagation':
+			return 1;
+		case 'MayPreventDefault':
+			return 2;
+		default:
+			return 3;
+	}
 };
+var elm$html$Html$div = _VirtualDom_node('div');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var author$project$View$pokeTypeView = function (maybePokeType) {
+	if (maybePokeType.$ === 'Just') {
+		switch (maybePokeType.a.$) {
+			case 'Normal':
+				var _n1 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--normal')
+						]),
+					_List_Nil);
+			case 'Fighting':
+				var _n2 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--fighting')
+						]),
+					_List_Nil);
+			case 'Flying':
+				var _n3 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--flying')
+						]),
+					_List_Nil);
+			case 'Poison':
+				var _n4 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--poison')
+						]),
+					_List_Nil);
+			case 'Ground':
+				var _n5 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--ground')
+						]),
+					_List_Nil);
+			case 'Rock':
+				var _n6 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--rock')
+						]),
+					_List_Nil);
+			case 'Bug':
+				var _n7 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--bug')
+						]),
+					_List_Nil);
+			case 'Ghost':
+				var _n8 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--ghost')
+						]),
+					_List_Nil);
+			case 'Steel':
+				var _n9 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--steel')
+						]),
+					_List_Nil);
+			case 'Fire':
+				var _n10 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--fire')
+						]),
+					_List_Nil);
+			case 'Water':
+				var _n11 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--water')
+						]),
+					_List_Nil);
+			case 'Grass':
+				var _n12 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--grass')
+						]),
+					_List_Nil);
+			case 'Electric':
+				var _n13 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--electric')
+						]),
+					_List_Nil);
+			case 'Psychic':
+				var _n14 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--psychic')
+						]),
+					_List_Nil);
+			case 'Ice':
+				var _n15 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--ice')
+						]),
+					_List_Nil);
+			case 'Dragon':
+				var _n16 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--dragon')
+						]),
+					_List_Nil);
+			case 'Dark':
+				var _n17 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--dark')
+						]),
+					_List_Nil);
+			case 'Fairy':
+				var _n18 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--fairy')
+						]),
+					_List_Nil);
+			case 'Unknown':
+				var _n19 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('type type--unknown')
+						]),
+					_List_Nil);
+			default:
+				var _n20 = maybePokeType.a;
+				return A2(
+					elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text('Shadow')
+						]));
+		}
+	} else {
+		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
+	}
+};
+var elm$html$Html$img = _VirtualDom_node('img');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var elm$svg$Svg$path = elm$svg$Svg$trustedNode('path');
+var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
+var elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var author$project$View$pokemonBaseView = F2(
+	function (fullPokemon, colorAttributes) {
+		var iconClasses = A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[colorAttributes.color, 'fill-current']));
+		return A2(
+			elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('flex items-center')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$svg$Svg$svg,
+							_List_fromArray(
+								[
+									elm$svg$Svg$Attributes$class(iconClasses),
+									elm$svg$Svg$Attributes$width('20'),
+									elm$svg$Svg$Attributes$height('20')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$svg$Svg$path,
+									_List_fromArray(
+										[
+											elm$svg$Svg$Attributes$d('M 10.003906 1.890625 C 5.945312 1.894531 2.582031 4.871094 1.976562 8.761719 L 6.105469 8.769531 C 6.632812 7.117188 8.179688 5.925781 10.003906 5.921875 C 11.824219 5.925781 13.367188 7.117188 13.898438 8.765625 L 18.023438 8.769531 C 17.421875 4.875 14.0625 1.894531 10.003906 1.890625 Z M 10.003906 7.359375 C 8.535156 7.359375 7.34375 8.550781 7.34375 10.019531 C 7.34375 11.484375 8.535156 12.675781 10.003906 12.675781 C 11.46875 12.675781 12.660156 11.484375 12.660156 10.019531 C 12.660156 8.550781 11.46875 7.359375 10.003906 7.359375 Z M 1.980469 11.269531 C 2.582031 15.160156 5.945312 18.140625 10.003906 18.144531 C 14.058594 18.140625 17.421875 15.164062 18.027344 11.277344 L 13.898438 11.269531 C 13.371094 12.917969 11.828125 14.113281 10.003906 14.113281 C 8.179688 14.109375 6.636719 12.917969 6.109375 11.273438 Z M 1.980469 11.269531')
+										]),
+									_List_Nil)
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('font-light text-xl')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(
+									elm$core$String$fromInt(fullPokemon.pokemon.order))
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('uppercase font-normal text-3xl')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(fullPokemon.pokemon.name)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('text-xs mb-2')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(fullPokemon.specie.genera)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('flex items-center')
+						]),
+					_List_fromArray(
+						[
+							author$project$View$pokeTypeView(
+							elm$core$Maybe$Just(fullPokemon.pokemon.pokeType1)),
+							author$project$View$pokeTypeView(fullPokemon.pokemon.pokeType2)
+						])),
+					A2(
+					elm$html$Html$img,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mt-2'),
+							elm$html$Html$Attributes$src('https://img.pokemondb.net/artwork/' + (fullPokemon.pokemon.name + '.jpg'))
+						]),
+					_List_Nil)
+				]));
+	});
+var elm$core$String$fromFloat = _String_fromNumber;
+var elm$html$Html$i = _VirtualDom_node('i');
+var author$project$View$pokeView = F2(
+	function (fullPokemon, colorAttributes) {
+		var cardClasses = A2(
+			elm$core$String$join,
+			' ',
+			_List_fromArray(
+				[colorAttributes.color, colorAttributes.border, 'border-solid', 'border-2', 'max-w-sm', 'rounded-lg', 'absolute', 'shadow-lg', 'p-6', 'flex', 'justify-between', 'bg-white', 'z-10']));
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class(cardClasses)
+				]),
+			_List_fromArray(
+				[
+					A2(author$project$View$pokemonBaseView, fullPokemon, colorAttributes),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('ml-6')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('flex font-thin text-sm mb-2')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$div,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('flex items-center mr-4')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											elm$html$Html$i,
+											_List_fromArray(
+												[
+													elm$html$Html$Attributes$class('fas fa-text-height mr-2')
+												]),
+											_List_Nil),
+											A2(
+											elm$html$Html$div,
+											_List_Nil,
+											_List_fromArray(
+												[
+													elm$html$Html$text(
+													elm$core$String$fromFloat(fullPokemon.pokemon.height) + ' (m)')
+												]))
+										])),
+									A2(
+									elm$html$Html$div,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('flex items-center')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											elm$html$Html$i,
+											_List_fromArray(
+												[
+													elm$html$Html$Attributes$class('fas fa-weight mr-2')
+												]),
+											_List_Nil),
+											A2(
+											elm$html$Html$div,
+											_List_Nil,
+											_List_fromArray(
+												[
+													elm$html$Html$text(
+													elm$core$String$fromFloat(fullPokemon.pokemon.weight) + ' (kg)')
+												]))
+										]))
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('font-light')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(fullPokemon.specie.flavorText)
+								]))
+						]))
+				]));
+	});
 var author$project$Update$ImageError = function (a) {
 	return {$: 'ImageError', a: a};
 };
@@ -6859,34 +7278,6 @@ var elm$core$Set$member = F2(
 		var dict = _n0.a;
 		return A2(elm$core$Dict$member, key, dict);
 	});
-var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
-	switch (handler.$) {
-		case 'Normal':
-			return 0;
-		case 'MayStopPropagation':
-			return 1;
-		case 'MayPreventDefault':
-			return 2;
-		default:
-			return 3;
-	}
-};
-var elm$html$Html$img = _VirtualDom_node('img');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6915,15 +7306,84 @@ var author$project$View$pokemonImageView = F3(
 				]),
 			_List_Nil);
 	});
-var elm$html$Html$div = _VirtualDom_node('div');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var author$project$View$Helpers$ColorAttributes = F6(
+	function (background, hover, text, color, border, focusBorder) {
+		return {background: background, border: border, color: color, focusBorder: focusBorder, hover: hover, text: text};
+	});
+var author$project$View$Helpers$pokeColorAttributes = function (color) {
+	switch (color.$) {
+		case 'Black':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-black', 'hover:bg-grey-darkest', 'text-white', 'text-black', 'border-black', 'focus:border-black');
+		case 'Blue':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-blue', 'hover:bg-blue-dark', 'text-white', 'text-blue', 'border-blue', 'focus:border-blue');
+		case 'Brown':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-orange-darker', 'hover:bg-orange-dark', 'text-white', 'text-orange-darker', 'border-orange-darker', 'focus:border-orange-darker');
+		case 'Grey':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-grey', 'hover:bg-grey-dark', 'text-black', 'text-grey', 'border-grey', 'focus:border-grey');
+		case 'Green':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-green', 'hover:bg-green-dark', 'text-white', 'text-green', 'border-green', 'focus:border-green');
+		case 'Pink':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-pink', 'hover:bg-pink-dark', 'text-white', 'text-pink', 'border-pink', 'focus:border-pink');
+		case 'Purple':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-purple', 'hover:bg-purple-dark', 'text-white', 'text-purple', 'border-purple', 'focus:border-purple');
+		case 'Red':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-red', 'hover:bg-red-dark', 'text-white', 'text-red', 'border-red', 'focus:border-red');
+		case 'White':
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-white', 'hover:bg-white-dark', 'text-black', 'text-white-dark', 'border-white-dark', 'focus:border-white-dark');
+		default:
+			return A6(author$project$View$Helpers$ColorAttributes, 'bg-yellow', 'hover:bg-yellow-dark', 'text-yellow-darkest', 'text-yellow', 'border-yellow', 'focus:border-yellow');
+	}
+};
 var elm$html$Html$Events$onClick = function (msg) {
 	return A2(
 		elm$html$Html$Events$on,
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
+var author$project$View$pokemonMiniView = F3(
+	function (model, index, pokemon) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('relative')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full'),
+							elm$html$Html$Events$onClick(
+							A2(author$project$Update$PokemonClicked, index, pokemon.name))
+						]),
+					_List_fromArray(
+						[
+							A3(author$project$View$pokemonImageView, model.imageErrors, index, pokemon.name)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							function () {
+							var _n0 = _Utils_Tuple2(
+								model.fullPokemon,
+								_Utils_eq(model.selectedPokemonIndex, index));
+							if ((_n0.a.$ === 'Success') && _n0.b) {
+								var fullPokemon = _n0.a.a;
+								return A2(
+									author$project$View$pokeView,
+									fullPokemon,
+									author$project$View$Helpers$pokeColorAttributes(fullPokemon.specie.color));
+							} else {
+								return elm$html$Html$text('');
+							}
+						}()
+						]))
+				]));
+	});
 var author$project$View$pokedex = function (model) {
 	var _n0 = model.pokemons;
 	switch (_n0.$) {
@@ -6941,18 +7401,7 @@ var author$project$View$pokedex = function (model) {
 						elm$core$List$indexedMap,
 						F2(
 							function (index, pokemon) {
-								return A2(
-									elm$html$Html$div,
-									_List_fromArray(
-										[
-											elm$html$Html$Attributes$class('flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full'),
-											elm$html$Html$Events$onClick(
-											author$project$Update$PokemonClicked(pokemon.name))
-										]),
-									_List_fromArray(
-										[
-											A3(author$project$View$pokemonImageView, model.imageErrors, index, pokemon.name)
-										]));
+								return A3(author$project$View$pokemonMiniView, model, index, pokemon);
 							}),
 						pokemons))
 				]);
@@ -7026,13 +7475,7 @@ var author$project$View$view = function (model) {
 				},
 				model.fullPokemon)));
 	return {
-		body: _List_fromArray(
-			[
-				A2(
-				elm$html$Html$div,
-				_List_Nil,
-				author$project$View$pokedex(model))
-			]),
+		body: author$project$View$pokedex(model),
 		title: pokeName
 	};
 };
@@ -7801,9 +8244,6 @@ var elm$core$String$left = F2(
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
 var elm$core$String$length = _String_length;
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var elm$core$String$right = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(
@@ -10591,4 +11031,4 @@ var elm$browser$Browser$document = _Browser_document;
 var author$project$Main$main = elm$browser$Browser$document(
 	{init: author$project$Init$init, subscriptions: author$project$Subs$subs, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"],"ImageError":["Basics.Int"],"PokemonClicked":["String.String"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"],"ImageError":["Basics.Int"],"PokemonClicked":["Basics.Int","String.String"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));

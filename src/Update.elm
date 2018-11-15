@@ -14,7 +14,7 @@ type Msg
     | SearchPokemons
     | PokemonsLoaded (Result Http.Error (List MiniPokemon))
     | ImageError Int
-    | PokemonClicked String
+    | PokemonClicked Int String
 
 
 flippedAndThen : Task x a -> (a -> Task x b) -> Task x b
@@ -58,7 +58,7 @@ update msg model =
         ImageError index ->
             ( { model | imageErrors = Set.insert index model.imageErrors }, Cmd.none )
 
-        PokemonClicked name ->
-            ( { model | fullPokemon = Loading }
+        PokemonClicked index name ->
+            ( { model | fullPokemon = Loading, selectedPokemonIndex = index }
             , getFullPokemon name
             )

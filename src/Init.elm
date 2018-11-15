@@ -14,6 +14,7 @@ initialModel =
     , pokemons = NotAsked
     , evolution = NotAsked
     , imageErrors = Set.empty
+    , selectedPokemonIndex = -1
     }
 
 

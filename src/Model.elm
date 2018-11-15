@@ -79,4 +79,5 @@ type alias Model =
     , pokemons : WebData (List MiniPokemon)
     , evolution : WebData String
     , imageErrors : Set Int
+    , selectedPokemonIndex : Int
     }
