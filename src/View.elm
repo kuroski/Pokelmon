@@ -38,13 +38,14 @@ pokedex : Model -> List (Html Msg)
 pokedex model =
     case model.pokemons of
         RemoteData.Success pokemons ->
-            [ div [ class "container mx-auto flex flex-wrap items-center" ]
+            [ div [ class "mx-auto pokegrid" ]
                 (List.indexedMap
                     (\index pokemon ->
-                        div [ class "flex items-center flex-col" ]
-                            [ pokemonImageView model.imageErrors index pokemon.name
-                            , div [] [ text pokemon.name ]
-                            ]
+                        div [
+                            class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
+                            , onClick <| SearchPokemon pokemon.name
+                        ]
+                            [ pokemonImageView model.imageErrors index pokemon.name ]
                     )
                     pokemons
                 )
@@ -75,6 +76,7 @@ pokemonImageView set index name =
     img
         [ src imageSrc
         , on "error" (Json.Decode.succeed <| ImageError index)
+        , class "pokeImage"
         ]
         []
 
@@ -156,7 +158,7 @@ viewSearchInput isLoading searchInput { background, hover, text, color, focusBor
                 ]
     in
     Html.form
-        [ onSubmit SearchPokemon
+        [ onSubmit <| SearchPokemon searchInput
         , class "mb-8 flex items-center"
         ]
         [ input

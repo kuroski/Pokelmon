@@ -11,7 +11,7 @@ import Set
 
 type Msg
     = SetSearchInput String
-    | SearchPokemon
+    | SearchPokemon String
     | PokemonLoaded (Result Http.Error FullPokemon)
     | SearchPokemons
     | PokemonsLoaded (Result Http.Error (List MiniPokemon))
@@ -29,10 +29,10 @@ update msg model =
         SetSearchInput value ->
             ( { model | searchInput = value }, Cmd.none )
 
-        SearchPokemon ->
+        SearchPokemon name ->
             let
                 request =
-                    getPokemon (String.toLower model.searchInput)
+                    getPokemon (String.toLower name)
             in
             ( { model | fullPokemon = Loading }
             , Task.attempt PokemonLoaded <|
