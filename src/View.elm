@@ -3,9 +3,11 @@ module View exposing (view)
 import Browser exposing (Document)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput, onSubmit)
+import Html.Events exposing (on, onClick, onInput, onSubmit)
+import Json.Decode
 import Model exposing (FullPokemon, Model, PokeColor(..), PokeType(..), Specie)
 import RemoteData
+import Set exposing (Set)
 import Svg exposing (path, svg)
 import Svg.Attributes as SvgAttribute
 import Update exposing (Msg(..))
@@ -37,10 +39,10 @@ pokedex model =
     case model.pokemons of
         RemoteData.Success pokemons ->
             [ div [ class "container mx-auto flex flex-wrap items-center" ]
-                (List.map
-                    (\pokemon ->
+                (List.indexedMap
+                    (\index pokemon ->
                         div [ class "flex items-center flex-col" ]
-                            [ img [ src <| "https://img.pokemondb.net/sprites/omega-ruby-alpha-sapphire/dex/normal/" ++ pokemon.name ++ ".png" ] []
+                            [ pokemonImageView model.imageErrors index pokemon.name
                             , div [] [ text pokemon.name ]
                             ]
                     )
@@ -58,6 +60,23 @@ pokedex model =
 
         RemoteData.NotAsked ->
             []
+
+
+pokemonImageView : Set Int -> Int -> String -> Html Msg
+pokemonImageView set index name =
+    let
+        imageSrc =
+            if Set.member index set then
+                "https://cdn.bulbagarden.net/upload/9/98/Missingno_RB.png"
+
+            else
+                "https://img.pokemondb.net/sprites/sun-moon/icon/" ++ name ++ ".png"
+    in
+    img
+        [ src imageSrc
+        , on "error" (Json.Decode.succeed <| ImageError index)
+        ]
+        []
 
 
 body : Model -> List (Html Msg)

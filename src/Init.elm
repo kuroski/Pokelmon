@@ -5,6 +5,7 @@ import Api exposing (getPokemons)
 import Update exposing (Msg(..))
 import Model exposing (Model, PokeColor(..), PokeType(..))
 import RemoteData exposing (RemoteData(..))
+import Set
 
 -- initialModel : Model
 -- initialModel =
@@ -42,6 +43,7 @@ initialModel =
     , fullPokemon = Success snorlax
     , pokemons = NotAsked
     , evolution = NotAsked
+    , imageErrors = Set.empty
     }
 
 

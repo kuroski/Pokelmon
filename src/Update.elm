@@ -2,9 +2,11 @@ module Update exposing (Msg(..), update)
 
 import Api exposing (getEvolutionChain, getPokemon, getSpecie, getPokemons)
 import Http
+import Debug
 import Model exposing (FullPokemon, MiniPokemon, Model, Pokemon, Specie)
 import RemoteData exposing (RemoteData(..))
 import Task exposing (Task)
+import Set
 
 
 type Msg
@@ -13,6 +15,7 @@ type Msg
     | PokemonLoaded (Result Http.Error FullPokemon)
     | SearchPokemons
     | PokemonsLoaded (Result Http.Error (List MiniPokemon))
+    | ImageError Int
 
 
 flippedAndThen : Task x a -> (a -> Task x b) -> Task x b
@@ -55,3 +58,6 @@ update msg model =
 
         PokemonsLoaded ( Err error ) ->
             ( { model | pokemons = Failure error }, Cmd.none )
+
+        ImageError index ->
+            ( { model | imageErrors = Set.insert index model.imageErrors }, Cmd.none )
