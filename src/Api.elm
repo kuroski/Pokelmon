@@ -66,6 +66,9 @@ colorDecoder =
                     "grey" ->
                         Decode.succeed Grey
 
+                    "gray" ->
+                        Decode.succeed Grey
+
                     "green" ->
                         Decode.succeed Green
 
@@ -100,8 +103,6 @@ pokeDecoder =
         |> requiredAt [ "types", "0", "type", "name" ] typeDecoder
         |> optionalAt [ "types", "1", "type", "name" ] (nullable typeDecoder) Nothing
         |> requiredAt [ "sprites", "front_default" ] string
-        |> requiredAt [ "sprites", "back_default" ] string
-        |> requiredAt [ "sprites", "front_female" ] (nullable string)
         |> requiredAt [ "species", "url" ] string
 
 

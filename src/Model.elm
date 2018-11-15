@@ -48,8 +48,6 @@ type alias Pokemon =
     , pokeType1 : PokeType
     , pokeType2 : Maybe PokeType
     , image : String
-    , imageBack : String
-    , imageFemale : Maybe String
     , specieUrl : String
     }
 

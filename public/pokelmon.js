@@ -6488,27 +6488,10 @@ var author$project$Api$typeDecoder = function () {
 	};
 	return A2(elm$json$Json$Decode$andThen, stringMapper, elm$json$Json$Decode$string);
 }();
-var author$project$Model$Pokemon = function (name) {
-	return function (order) {
-		return function (height) {
-			return function (weight) {
-				return function (pokeType1) {
-					return function (pokeType2) {
-						return function (image) {
-							return function (imageBack) {
-								return function (imageFemale) {
-									return function (specieUrl) {
-										return {height: height, image: image, imageBack: imageBack, imageFemale: imageFemale, name: name, order: order, pokeType1: pokeType1, pokeType2: pokeType2, specieUrl: specieUrl, weight: weight};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
+var author$project$Model$Pokemon = F8(
+	function (name, order, height, weight, pokeType1, pokeType2, image, specieUrl) {
+		return {height: height, image: image, name: name, order: order, pokeType1: pokeType1, pokeType2: pokeType2, specieUrl: specieUrl, weight: weight};
+	});
 var elm$json$Json$Decode$nullable = function (decoder) {
 	return elm$json$Json$Decode$oneOf(
 		_List_fromArray(
@@ -6525,46 +6508,36 @@ var author$project$Api$pokeDecoder = A3(
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 		_List_fromArray(
-			['sprites', 'front_female']),
-		elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			['sprites', 'front_default']),
+		elm$json$Json$Decode$string,
+		A4(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
 			_List_fromArray(
-				['sprites', 'back_default']),
-			elm$json$Json$Decode$string,
+				['types', '1', 'type', 'name']),
+			elm$json$Json$Decode$nullable(author$project$Api$typeDecoder),
+			elm$core$Maybe$Nothing,
 			A3(
 				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 				_List_fromArray(
-					['sprites', 'front_default']),
-				elm$json$Json$Decode$string,
-				A4(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
-					_List_fromArray(
-						['types', '1', 'type', 'name']),
-					elm$json$Json$Decode$nullable(author$project$Api$typeDecoder),
-					elm$core$Maybe$Nothing,
+					['types', '0', 'type', 'name']),
+				author$project$Api$typeDecoder,
+				A3(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'weight',
+					author$project$Api$sizeDecoder,
 					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-						_List_fromArray(
-							['types', '0', 'type', 'name']),
-						author$project$Api$typeDecoder,
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'height',
+						author$project$Api$sizeDecoder,
 						A3(
 							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-							'weight',
-							author$project$Api$sizeDecoder,
+							'order',
+							elm$json$Json$Decode$int,
 							A3(
 								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-								'height',
-								author$project$Api$sizeDecoder,
-								A3(
-									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-									'order',
-									elm$json$Json$Decode$int,
-									A3(
-										NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-										'name',
-										elm$json$Json$Decode$string,
-										elm$json$Json$Decode$succeed(author$project$Model$Pokemon)))))))))));
+								'name',
+								elm$json$Json$Decode$string,
+								elm$json$Json$Decode$succeed(author$project$Model$Pokemon)))))))));
 var author$project$Api$getPokemon = function (term) {
 	var url = 'https://pokeapi.co/api/v2/pokemon/' + (term + '/');
 	return elm$http$Http$toTask(
@@ -6590,6 +6563,8 @@ var author$project$Api$colorDecoder = function () {
 			case 'brown':
 				return elm$json$Json$Decode$succeed(author$project$Model$Brown);
 			case 'grey':
+				return elm$json$Json$Decode$succeed(author$project$Model$Grey);
+			case 'gray':
 				return elm$json$Json$Decode$succeed(author$project$Model$Grey);
 			case 'green':
 				return elm$json$Json$Decode$succeed(author$project$Model$Green);
@@ -11031,4 +11006,4 @@ var elm$browser$Browser$document = _Browser_document;
 var author$project$Main$main = elm$browser$Browser$document(
 	{init: author$project$Init$init, subscriptions: author$project$Subs$subs, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, imageBack : String.String, imageFemale : Maybe.Maybe String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"],"ImageError":["Basics.Int"],"PokemonClicked":["Basics.Int","String.String"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Update.Msg","aliases":{"Model.FullPokemon":{"args":[],"type":"{ pokemon : Model.Pokemon, specie : Model.Specie }"},"Model.MiniPokemon":{"args":[],"type":"{ name : String.String, pokeUrl : String.String }"},"Model.Pokemon":{"args":[],"type":"{ name : String.String, order : Basics.Int, height : Basics.Float, weight : Basics.Float, pokeType1 : Model.PokeType, pokeType2 : Maybe.Maybe Model.PokeType, image : String.String, specieUrl : String.String }"},"Model.Specie":{"args":[],"type":"{ color : Model.PokeColor, genera : String.String, flavorText : String.String, evolutionChainUrl : String.String }"},"Http.Response":{"args":["body"],"type":"{ url : String.String, status : { code : Basics.Int, message : String.String }, headers : Dict.Dict String.String String.String, body : body }"}},"unions":{"Update.Msg":{"args":[],"tags":{"PokemonLoaded":["Result.Result Http.Error Model.FullPokemon"],"SearchPokemons":[],"PokemonsLoaded":["Result.Result Http.Error (List.List Model.MiniPokemon)"],"ImageError":["Basics.Int"],"PokemonClicked":["Basics.Int","String.String"]}},"Model.PokeColor":{"args":[],"tags":{"Black":[],"Blue":[],"Brown":[],"Grey":[],"Green":[],"Pink":[],"Purple":[],"Red":[],"White":[],"Yellow":[]}},"Model.PokeType":{"args":[],"tags":{"Normal":[],"Fighting":[],"Flying":[],"Poison":[],"Ground":[],"Rock":[],"Bug":[],"Ghost":[],"Steel":[],"Fire":[],"Water":[],"Grass":[],"Electric":[],"Psychic":[],"Ice":[],"Dragon":[],"Dark":[],"Fairy":[],"Unknown":[],"Shadow":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Response String.String"],"BadPayload":["String.String","Http.Response String.String"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
