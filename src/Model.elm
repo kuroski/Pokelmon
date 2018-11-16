@@ -2,6 +2,7 @@ module Model exposing (FullPokemon, MiniPokemon, Model, PokeColor(..), PokeType(
 
 import RemoteData exposing (WebData)
 import Set exposing (Set)
+import Debounce exposing (Debounce)
 
 
 type PokeType
@@ -79,4 +80,5 @@ type alias Model =
     , evolution : WebData String
     , imageErrors : Set Int
     , selectedPokemonIndex : Int
+    , debounce : Debounce String
     }

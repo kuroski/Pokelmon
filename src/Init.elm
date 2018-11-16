@@ -6,11 +6,14 @@ import Model exposing (Model, PokeColor(..), PokeType(..))
 import RemoteData exposing (RemoteData(..))
 import Set
 import Update exposing (Msg(..))
+import Debounce exposing (Debounce)
 
 
 initialModel : Model
 initialModel =
-    { searchText = "",fullPokemon = NotAsked
+    { searchText = ""
+    , debounce = Debounce.init
+    , fullPokemon = NotAsked
     , pokemons = NotAsked
     , evolution = NotAsked
     , imageErrors = Set.empty

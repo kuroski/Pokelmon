@@ -36,7 +36,7 @@ searchInput searchText =
     div [ class "flex justify-center mx-auto mt-4 px-4" ]
         [ input
             [ class "shadow appearance-none border rounded-l py-2 px-3 leading-tight flex-1"
-            , onInput SearchInputChanged
+            , onInput SearchInputTyped
             , autofocus True
             ]
             [ text searchText ]
