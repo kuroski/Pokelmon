@@ -33,13 +33,15 @@ view model =
 
 searchInput : String -> Html Msg
 searchInput searchText =
-    div [ class "container flex justify-center mx-auto mt-4" ]
+    div [ class "flex justify-center mx-auto mt-4 px-4" ]
         [ input
             [ class "shadow appearance-none border rounded-l py-2 px-3 leading-tight flex-1"
             , onInput SearchInputChanged
+            , autofocus True
             ]
             [ text searchText ]
         ]
+
 
 pokedex : Model -> Html Msg
 pokedex model =
@@ -62,10 +64,10 @@ pokedex model =
                 (List.indexedMap (pokemonMiniView model) pokemons)
 
         RemoteData.Loading ->
-            div [] [ text "pokedek loading..." ]
+            viewLoading
 
         RemoteData.Failure _ ->
-            div [] [ text "Something is wrong loading the pokedex =(" ]
+            viewFailure
 
         RemoteData.NotAsked ->
             div [] []
@@ -75,7 +77,7 @@ pokemonMiniView : Model -> Int -> MiniPokemon -> Html Msg
 pokemonMiniView model index pokemon =
     div [ class "relative" ]
         [ div
-            [ class "flex items-center flex-col cursor-pointer hover:shadow-lg rounded-full"
+            [ class "pokeMini flex items-center justify-center flex-col cursor-pointer hover:shadow-lg rounded-full"
             , onClick <| PokemonClicked index pokemon.name
             ]
             [ pokemonImageView model.imageErrors index pokemon.name
@@ -84,6 +86,9 @@ pokemonMiniView model index pokemon =
             [ case ( model.fullPokemon, model.selectedPokemonIndex == index ) of
                 ( RemoteData.Success fullPokemon, True ) ->
                     pokeView fullPokemon (pokeColorAttributes fullPokemon.specie.color)
+
+                ( RemoteData.Loading, True ) ->
+                    viewLoading
 
                 _ ->
                     text ""
@@ -123,17 +128,12 @@ viewFailure =
         ]
 
 
-viewNotAsked : Html Msg
-viewNotAsked =
-    div [] []
-
-
 viewLoading : Html Msg
 viewLoading =
-    div [ class "flex justify-center" ]
-        [ i
-            [ class "fas fa-3x fa-spinner fa-pulse mb-4" ]
-            []
+    div [ class "ball-beat flex justify-center absolute w-full" ]
+        [ div [] []
+        , div [] []
+        , div [] []
         ]
 
 
@@ -142,25 +142,27 @@ pokeView fullPokemon colorAttributes =
     let
         cardClasses =
             String.join " "
-                [ colorAttributes.color
+                [ "pokeView"
+                , colorAttributes.color
                 , colorAttributes.border
                 , "border-solid"
                 , "border-2"
-                , "max-w-sm"
                 , "rounded-lg"
                 , "absolute"
                 , "shadow-lg"
-                , "p-6"
+                , "p-4"
                 , "flex"
+                , "flex-col"
                 , "justify-between"
                 , "bg-white"
                 , "z-10"
+                , "w-64"
                 ]
     in
     div [ class cardClasses ]
         [ pokemonBaseView fullPokemon colorAttributes
-        , div [ class "ml-6" ]
-            [ div [ class "flex font-thin text-sm mb-2" ]
+        , div [ class "mt-2" ]
+            [ div [ class "flex justify-center font-thin text-sm mb-2" ]
                 [ div [ class "flex items-center mr-4" ]
                     [ i [ class "fas fa-text-height mr-2" ] []
                     , div [] [ text <| String.fromFloat fullPokemon.pokemon.height ++ " (m)" ]
@@ -170,7 +172,7 @@ pokeView fullPokemon colorAttributes =
                     , div [] [ text <| String.fromFloat fullPokemon.pokemon.weight ++ " (kg)" ]
                     ]
                 ]
-            , div [ class "font-light" ] [ text fullPokemon.specie.flavorText ]
+            , div [ class "font-light text-justify" ] [ text fullPokemon.specie.flavorText ]
             ]
         ]
 
@@ -184,8 +186,9 @@ pokemonBaseView fullPokemon colorAttributes =
                 , "fill-current"
                 ]
     in
-    div []
-        [ div [ class "flex items-center" ]
+    div [ class "text-center" ]
+        [ img [ src <| "https://img.pokemondb.net/artwork/" ++ fullPokemon.pokemon.name ++ ".jpg" ] []
+        , div [ class "flex items-center justify-center" ]
             [ svg
                 [ SvgAttribute.class iconClasses
                 , SvgAttribute.width "20"
@@ -197,11 +200,10 @@ pokemonBaseView fullPokemon colorAttributes =
             ]
         , div [ class "uppercase font-normal text-3xl" ] [ text fullPokemon.pokemon.name ]
         , div [ class "text-xs mb-2" ] [ text fullPokemon.specie.genera ]
-        , div [ class "flex items-center" ]
+        , div [ class "flex items-center justify-center" ]
             [ pokeTypeView (Just fullPokemon.pokemon.pokeType1)
             , pokeTypeView fullPokemon.pokemon.pokeType2
             ]
-        , img [ class "mt-2", src <| "https://img.pokemondb.net/artwork/" ++ fullPokemon.pokemon.name ++ ".jpg" ] []
         ]
 
 

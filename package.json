@@ -18,6 +18,7 @@
   "homepage": "https://gitlab.com/kuroski/pokelmon#readme",
   "devDependencies": {
     "elm": "^0.19.0-bugfix2",
-    "elm-live": "^3.0.6"
+    "elm-live": "^3.2.1",
+    "uglify-js": "^3.4.9"
   }
 }
